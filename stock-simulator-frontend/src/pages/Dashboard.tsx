@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import SessionModal from "../components/SessionModal";
 import Layout from "../components/Layout";
 import StockItem from "../components/StockItem";
 import NewsItem from "../components/NewsItem";
+import SessionItem from "../components/SessionItem";
 
 const Dashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -102,15 +103,7 @@ const Dashboard: React.FC = () => {
                     </button>
                   </div>
                   {sessions.map((session) => (
-                    <div
-                      key={session.id}
-                      className="flex justify-between items-center bg-gray-400 text-white p-2 rounded"
-                    >
-                      <span>{session.name}</span>
-                      <button onClick={() => handleDeleteSession(session.id)}>
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    </div>
+                    <SessionItem name={session.name} onDelete={() => handleDeleteSession(session.id)} />
                   ))}
                 </div>
               )}
