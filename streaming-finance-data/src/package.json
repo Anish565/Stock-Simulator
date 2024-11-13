@@ -1,0 +1,22 @@
+{
+  "name": "streaming-data-app",
+  "version": "1.0.0",
+  "description": "Real-time and historical data fetching from Yahoo Finance",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js"
+  },
+  "keywords": [
+    "finance",
+    "data",
+    "real-time"
+  ],
+  "author": "Akshat Shaha",
+  "license": "ISC",
+  "dependencies": {
+    "nodemon": "^3.1.7",
+    "protobufjs": "^7.4.0",
+    "winston": "^3.17.0"
+  }
+}

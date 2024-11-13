@@ -1,0 +1,17 @@
+# Node modules (for Node.js projects)
+**/node_modules/
+
+# Log files
+**/logs/
+**/*.log
+
+# Environment and config files with sensitive information
+**/.env
+
+# Ignore build directories (for frontend projects)
+**/build/
+**/dist/
+
+# OS-specific files
+.DS_Store
+
