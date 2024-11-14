@@ -5,7 +5,7 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "node app.js"
+    "dev": "nodemon app.js"
   },
   "keywords": [
     "finance",
@@ -15,8 +15,10 @@
   "author": "Akshat Shaha",
   "license": "ISC",
   "dependencies": {
-    "nodemon": "^3.1.7",
     "protobufjs": "^7.4.0",
     "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
   }
 }
