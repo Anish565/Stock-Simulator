@@ -1,0 +1,262 @@
+openapi: 3.0.0
+info:
+  title: Stock Trading Simulator API
+  version: 1.0.0
+  description: API documentation for the Stock Trading Simulator project.
+
+paths:
+  # User Management APIs
+  /register:
+    post:
+      summary: Register the user information
+      description: Register a new user on the platform.
+      tags: [User Management]
+      responses:
+        '200':
+          description: User registered successfully.
+
+  /login:
+    post:
+      summary: User login
+      description: Authenticates a user and returns a session token.
+      tags: [User Management]
+      responses:
+        '200':
+          description: User logged in successfully.
+
+  /logout:
+    post:
+      summary: User logout
+      description: Logs out the user and invalidates the session.
+      tags: [User Management]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User logged out successfully.
+
+  /user:
+    get:
+      summary: Retrieve user information
+      description: Gets information about the authenticated user.
+      tags: [User Management]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User information retrieved successfully.
+
+  # Session Management APIs
+  /session/create:
+    post:
+      summary: Create a new session
+      description: Creates a new trading session for the user.
+      tags: [Session Management]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Session created successfully.
+
+  /session:
+    get:
+      summary: Get user’s sessions
+      description: Retrieves all active sessions for the authenticated user.
+      tags: [Session Management]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User sessions retrieved successfully.
+
+  /session/get/{sessionId}:
+    get:
+      summary: Get session information
+      description: Retrieves information for a specific session.
+      tags: [Session Management]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session information retrieved successfully.
+
+  /session/delete/{sessionId}:
+    delete:
+      summary: Delete a session
+      description: Deletes a specific session for the authenticated user.
+      tags: [Session Management]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session deleted successfully.
+
+  /session/history/{sessionId}:
+    get:
+      summary: Get session history
+      description: Retrieves the history of a specific session.
+      tags: [Session Management]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session history retrieved successfully.
+
+  /session/history/user:
+    get:
+      summary: Get all completed sessions for user
+      description: Retrieves the history of all completed sessions for the authenticated user.
+      tags: [Session Management]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All completed sessions retrieved successfully.
+
+  # Trading Management APIs
+  /trade/{sessionId}/buy/{stock}:
+    post:
+      summary: Buy stock in session
+      description: Allows the user to buy a specified stock in a session.
+      tags: [Trading Management]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: stock
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Stock bought successfully in session.
+
+  /trade/{sessionId}/sell/{stock}:
+    post:
+      summary: Sell stock in session
+      description: Allows the user to sell a specified stock in a session.
+      tags: [Trading Management]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: stock
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Stock sold successfully in session.
+
+  /trade/{sessionId}/owned/stocks:
+    get:
+      summary: Get stocks owned in session
+      description: Retrieves all stocks owned by the user in a specified session.
+      tags: [Trading Management]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Owned stocks retrieved successfully.
+
+  /trade/{sessionId}/watchlist:
+    get:
+      summary: Get watchlist stocks in session
+      description: Retrieves the user's watchlist stocks for a specific session.
+      tags: [Trading Management]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Watchlist stocks retrieved successfully.
+
+  /trade/{sessionId}/portfolio:
+    get:
+      summary: Get portfolio information
+      description: Retrieves portfolio information for a specified session.
+      tags: [Trading Management]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Portfolio information retrieved successfully.
+
+  /trade/{sessionId}/orders:
+    get:
+      summary: Get session orders
+      description: Retrieves all orders placed by the user in a specific session.
+      tags: [Trading Management]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Orders retrieved successfully.
+
+  # News Management APIs
+  /news/get:
+    get:
+      summary: Get top 10 news articles
+      description: Retrieves the top 10 news articles relevant to stocks.
+      tags: [News Management]
+      responses:
+        '200':
+          description: Top 10 news articles retrieved successfully.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
