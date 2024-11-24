@@ -52,70 +52,69 @@ const Mfa: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-white">
-      {/* Toast Container */}
-      <ToastContainer position="top-center" autoClose={2000} />
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+        <ToastContainer position="top-center" autoClose={2000} />
 
-      <h1 className="text-lg font-bold mt-8">MFA Required</h1>
+        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+          {challengeName === "MFA_SETUP" ? "Set Up Two-Factor Authentication" : "Two-Factor Authentication"}
+        </h1>
 
-      {challengeName === "MFA_SETUP" ? (
-        <div className="mt-4 text-center">
-          <p>Scan this QR code with your authenticator app:</p>
-          <div className="mt-4">
-            {/* Render the QR code */}
-            <QRCodeSVG value={qrUrl} size={160} />
+        {challengeName === "MFA_SETUP" ? (
+          <div className="space-y-6">
+            <div className="text-center">
+              <p className="text-gray-600 mb-4">Scan this QR code with your authenticator app:</p>
+              <div className="inline-block p-4 bg-gray-50 rounded-lg">
+                <QRCodeSVG value={qrUrl} size={160} />
+              </div>
+            </div>
+
+            <form className="space-y-4" onSubmit={handleOtpSubmit}>
+              <input
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter verification code"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+              />
+              <button
+                type="submit"
+                className={`w-full py-3 rounded-lg font-medium transition ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-purple-600 hover:bg-purple-700 text-white"
+                }`}
+                disabled={loading}
+              >
+                {loading ? "Verifying..." : "Verify & Complete Setup"}
+              </button>
+            </form>
           </div>
-          <p className="mt-4 text-black">
-            Secret Code: <span className="font-mono">{secretCode}</span>
-          </p>
-
-          <form className="mt-6 space-y-4" onSubmit={handleOtpSubmit}>
+        ) : challengeName === "SOFTWARE_TOKEN_MFA" ? (
+          <form className="space-y-4" onSubmit={handleOtpSubmit}>
             <input
               type="text"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
-              placeholder="Enter OTP from Authenticator App"
-              className="w-full px-3 py-2 rounded text-black"
+              placeholder="Enter verification code"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
             />
             <button
               type="submit"
-              className={`w-full py-2 rounded ${
+              className={`w-full py-3 rounded-lg font-medium transition ${
                 loading
-                  ? "bg-gray-500 cursor-not-allowed"
-                  : "bg-[#5e4b8b] text-white hover:bg-[#4a3b72] transition"
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-purple-600 hover:bg-purple-700 text-white"
               }`}
               disabled={loading}
             >
-              {loading ? "Setting Up..." : "Setup MFA"}
+              {loading ? "Verifying..." : "Verify & Sign In"}
             </button>
           </form>
-        </div>
-      ) : challengeName === "SOFTWARE_TOKEN_MFA" ? (
-        <div className="mt-4">
-          <form onSubmit={handleOtpSubmit}>
-            <input
-              type="text"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              placeholder="Enter OTP"
-              className="w-full px-3 py-2 rounded text-black"
-            />
-            <button
-              type="submit"
-              className={`w-full py-2 rounded ${
-                loading
-                  ? "bg-gray-500 cursor-not-allowed"
-                  : "bg-[#5e4b8b] text-white hover:bg-[#4a3b72] transition"
-              }`}
-              disabled={loading}
-            >
-              {loading ? "Verifying..." : "Verify and Login"}
-            </button>
-          </form>
-        </div>
-      ) : (
-        <p className="mt-4">Invalid MFA challenge.</p>
-      )}
+        ) : (
+          <p className="text-center text-red-600">Invalid authentication challenge.</p>
+        )}
+      </div>
     </div>
   );
 };

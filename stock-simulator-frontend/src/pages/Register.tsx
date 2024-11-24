@@ -4,6 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Header from "../components/Header";
 import { registerUser } from "../utils/apiService";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -19,6 +20,8 @@ const Register: React.FC = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,101 +81,126 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-white">
-      {/* Header */}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
       <Header />
-
-      {/* Toast Container */}
       <ToastContainer position="top-center" autoClose={2000} />
 
-      {/* Registration Form */}
-      <div className="mt-8 p-6 bg-[#8b4242] rounded-lg shadow-lg w-full max-w-sm text-white">
-        <h2 className="text-center text-lg mb-4">Register</h2>
+      <div className="p-8 bg-white/10 backdrop-blur-lg rounded-xl shadow-2xl w-full max-w-md text-white">
+        <h2 className="text-center text-2xl font-bold mb-6">Create Account</h2>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          {/* Username */}
           <input
             type="text"
             name="username"
             value={formData.username}
             onChange={handleChange}
             placeholder="Username"
-            className="w-full px-3 py-2 rounded text-black"
+            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 transition-all"
           />
-          <input
-            type="text"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleChange}
-            placeholder="First Name"
-            className="w-full px-3 py-2 rounded text-black"
-          />
-          <input
-            type="text"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleChange}
-            placeholder="Last Name"
-            className="w-full px-3 py-2 rounded text-black"
-          />
+
+          {/* Email */}
           <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
             placeholder="Email"
-            className="w-full px-3 py-2 rounded text-black"
+            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 transition-all"
           />
+
+          {/* First Name */}
           <input
-            type="password"
-            name="password"
-            value={formData.password}
+            type="text"
+            name="firstName"
+            value={formData.firstName}
             onChange={handleChange}
-            placeholder="Password"
-            className="w-full px-3 py-2 rounded text-black"
+            placeholder="First Name"
+            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 transition-all"
           />
+
+          {/* Last Name */}
           <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
+            type="text"
+            name="lastName"
+            value={formData.lastName}
             onChange={handleChange}
-            placeholder="Confirm Password"
-            className="w-full px-3 py-2 rounded text-black"
+            placeholder="Last Name"
+            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 transition-all"
           />
+
+          {/* Date of Birth */}
           <input
             type="text"
             name="DOB"
             value={formData.DOB}
             onChange={handleChange}
             placeholder="Date of Birth (YYYY-MM-DD)"
-            className="w-full px-3 py-2 rounded text-black"
+            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 transition-all"
           />
 
-          {/* Sign Up Button */}
+          {/* Password */}
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Password"
+              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 transition-all"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+
+          {/* Confirm Password */}
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm Password"
+              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 transition-all"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+
           <button
             type="submit"
-            className={`w-full py-2 rounded ${
+            className={`w-full py-3 rounded-lg font-semibold ${
               loading
                 ? "bg-gray-500 cursor-not-allowed"
-                : "bg-[#5e4b8b] text-white hover:bg-[#4a3b72] transition"
+                : "bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 transform hover:scale-[1.02] transition-all"
             }`}
             disabled={loading}
           >
-            {loading ? "Signing Up..." : "Sign Up"}
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
 
-          {/* Divider */}
           <div className="flex items-center my-4">
-            <hr className="flex-grow border-t border-gray-300" />
-            <span className="mx-4">or</span>
-            <hr className="flex-grow border-t border-gray-300" />
+            <hr className="flex-grow border-t border-white/10" />
+            <span className="px-4 text-gray-400">or</span>
+            <hr className="flex-grow border-t border-white/10" />
           </div>
 
-          {/* Google Sign Up */}
           <button
             type="button"
-            className="w-full py-2 rounded bg-red-600 text-white hover:bg-red-700 transition"
+            className="w-full py-3 rounded-lg bg-white text-gray-900 font-semibold hover:bg-gray-100 transform hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
           >
-            Sign Up with Google
+            <img src="/google-icon.png" alt="Google" className="w-5 h-5" />
+            Continue with Google
           </button>
         </form>
       </div>

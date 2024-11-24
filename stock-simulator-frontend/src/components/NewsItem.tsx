@@ -13,7 +13,7 @@ const NewsItem: React.FC<NewsItemProps> = ({ headline, imageUrl, link }) => {
         <img src={imageUrl} alt="News" className="w-16 h-16 object-cover rounded" />
       )}
       <div className="flex-1">
-        <h3 className="text-lg font-semibold">{headline}</h3>
+        <h3 className="text-lg font-semibold text-gray-800">{headline}</h3>
       </div>
     </a>
   );

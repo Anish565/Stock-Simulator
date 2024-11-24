@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faArrowLeft, faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faArrowLeft, faUserCircle, faHome, faUser, faHistory } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 
 interface SidebarProps {
@@ -10,51 +10,69 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ profileImageUrl }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
   return (
     <div
       className={`${
-        isSidebarOpen ? "w-48" : "w-12"
-      } transition-width duration-300 bg-[#8b4242] text-white flex flex-col relative`}
+        isSidebarOpen ? "w-64" : "w-16"
+      } transition-all duration-300 ease-in-out bg-gray-900 min-h-screen flex flex-col relative shadow-lg overflow-hidden`}
     >
-      {/* Toggle Button at Top-Left */}
-      <button onClick={toggleSidebar} className="p-4 absolute top-0 left-0">
+      {/* Toggle Button */}
+      <button 
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="p-4 absolute top-0 left-0 text-gray-400 hover:text-white transition-colors"
+      >
         <FontAwesomeIcon icon={isSidebarOpen ? faArrowLeft : faBars} size="lg" />
       </button>
 
-      {/* Sidebar Content - Links at the Top */}
-      <div className={`flex-grow mt-16 ${isSidebarOpen ? "pl-4 pr-4" : "px-0"} space-y-4`}>
-        {isSidebarOpen && (
-          <div>
-            <h2 className="text-lg font-semibold">Stock Simulator</h2>
-            <nav className="space-y-2 mt-4">
-              <Link to="/dashboard" className="block">Home</Link>
-              <Link to="/profile" className="block">Profile</Link>
-              <Link to="/session-history" className="block">Session History</Link>
-            </nav>
-          </div>
-        )}
+      {/* Main Navigation */}
+      <div className={`flex-grow mt-16 ${isSidebarOpen ? "px-6" : "px-2"} space-y-6`}>
+        <div className={`${!isSidebarOpen ? 'opacity-0 invisible' : 'opacity-100 visible'} transition-all duration-300`}>
+          <h2 className="text-xl font-bold text-white/90 mb-8">Stock Simulator</h2>
+        </div>
+        
+        <nav className="space-y-4">
+          <Link to="/dashboard" 
+            className="flex items-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg p-2 transition-all">
+            <FontAwesomeIcon icon={faHome} className="w-5 h-5" />
+            <span className={`ml-3 ${!isSidebarOpen ? 'opacity-0 invisible' : 'opacity-100 visible'} transition-all duration-300`}>
+              Home
+            </span>
+          </Link>
+          <Link to="/profile" 
+            className="flex items-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg p-2 transition-all">
+            <FontAwesomeIcon icon={faUser} className="w-5 h-5" />
+            <span className={`ml-3 ${!isSidebarOpen ? 'opacity-0 invisible' : 'opacity-100 visible'} transition-all duration-300`}>
+              Profile
+            </span>
+          </Link>
+          <Link to="/session-history" 
+            className="flex items-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg p-2 transition-all">
+            <FontAwesomeIcon icon={faHistory} className="w-5 h-5" />
+            <span className={`ml-3 ${!isSidebarOpen ? 'opacity-0 invisible' : 'opacity-100 visible'} transition-all duration-300`}>
+              Session History
+            </span>
+          </Link>
+        </nav>
       </div>
 
-      {/* Profile Icon and Sign Out Button at Bottom */}
-      <div className="flex items-center justify-center p-4 space-x-4 absolute bottom-4 left-0 w-full">
-      {profileImageUrl ? (
-          <img
-            src={profileImageUrl}
-            alt="Profile"
-            className="w-8 h-8 rounded-full object-cover"
-          />
-        ) : (
-          <FontAwesomeIcon icon={faUserCircle} size="2x" />
-        )}
-        {isSidebarOpen && (
-          <div className="flex items-center space-x-2">
-            <button className="text-left">Sign out</button>
-          </div>
-        )}
+      {/* Profile Section */}
+      <div className="border-t border-gray-800 p-4">
+        <div className="flex items-center space-x-3">
+          {profileImageUrl ? (
+            <img
+              src={profileImageUrl}
+              alt="Profile"
+              className="w-8 h-8 rounded-full object-cover ring-2 ring-gray-700"
+            />
+          ) : (
+            <FontAwesomeIcon icon={faUserCircle} size="2x" className="text-gray-400" />
+          )}
+          <span className={`${!isSidebarOpen ? 'opacity-0 invisible' : 'opacity-100 visible'} transition-all duration-300`}>
+            <button className="text-gray-400 hover:text-white transition-colors">
+              Sign out
+            </button>
+          </span>
+        </div>
       </div>
     </div>
   );
