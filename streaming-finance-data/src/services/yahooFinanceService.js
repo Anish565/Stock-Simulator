@@ -3,7 +3,7 @@ const yahooFinance = require('yahoo-finance2').default;
 const { logger } = require('../utils/logger'); // Import the logger
 const { loadOrCreateConfig } = require('../utils/configReader'); // Import config reader 
 const { ensureTableExists, insertHistoricalData } = require('./dbServices');
-
+const {loadToDynamo} = require('./dynamoService')
 const dbClient = require('../config/dbConfig'); 
 
 async function fetchHistoricalDataFromYahoo() {
@@ -30,10 +30,11 @@ async function fetchHistoricalDataFromYahoo() {
                 period2: new Date(endDate),
                 interval: '1d',
             });
+            console.log(historicalData)
             
             // Insert historical data
             logger.info("fetchHistoricalDataFromYahoo: Inserting into Historical Data");
-            await insertHistoricalData(ticker, historicalData);
+            await loadToDynamo(historicalData);
 
             // for (const day of historicalData.quotes) {
             //     try {

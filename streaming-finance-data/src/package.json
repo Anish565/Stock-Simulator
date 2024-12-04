@@ -15,8 +15,12 @@
   "author": "Akshat Shaha",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.705.0",
+    "aws-sdk": "^2.1692.0",
+    "axios": "^1.7.9",
     "express": "^4.21.1",
     "package-lock.json": "^1.0.0",
+    "pg": "^8.13.1",
     "protobufjs": "^7.4.0",
     "streaming-data-app": "file:",
     "websocket": "^1.0.35",
