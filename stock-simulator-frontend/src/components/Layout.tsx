@@ -9,11 +9,11 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, profileImageUrl }) => {
     return (
-        <div className="flex min-h-screen bg-gray-100">
+        <div className="flex min-h-screen">
             <Sidebar profileImageUrl={profileImageUrl}/>
             <div className="flex-1">
                 <NewsStrip/>
-                <div className="p-6 space-y-6">
+                <div className="space-y-6">
                     {children}
                 </div>
             </div>
