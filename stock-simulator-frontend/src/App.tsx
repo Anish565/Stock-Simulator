@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import SessionPage from "./pages/SessionPage";
 import ProfilePage from "./pages/ProfilePage";
 import SessionHistoryPage from "./pages/SessionHistoryPage";
+import MFA from "./pages/MFA";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/session" element={<SessionPage />} /> {/* This will have an ID */}
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/session-history" element={<SessionHistoryPage />} />
+        <Route path="/mfa" element={<MFA />} />
       </Routes>
     </Router>
   )

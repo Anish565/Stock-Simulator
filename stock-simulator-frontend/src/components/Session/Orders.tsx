@@ -35,25 +35,25 @@ const Orders: React.FC = () => {
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-gray-200 bg-gradient-to-br from-gray-800 to-gray-600">
+        <thead className="bg-gray-700/50">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Symbol</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th className="px-6 py-3 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Time</th>
+            <th className="px-6 py-3 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Symbol</th>
+            <th className="px-6 py-3 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Type</th>
+            <th className="px-6 py-3 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Quantity</th>
+            <th className="px-6 py-3 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Price</th>
+            <th className="px-6 py-3 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Total</th>
+            <th className="px-6 py-3 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Status</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-gray-700/50 divide-y divide-gray-200">
           {orders.map((order) => (
             <tr key={order.id}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
                 {new Date(order.timestamp).toLocaleString()}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-100">
                 {order.symbol}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -63,13 +63,13 @@ const Orders: React.FC = () => {
                   {order.type}
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
                 {order.quantity}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
                 ${order.price.toFixed(2)}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
                 ${(order.quantity * order.price).toFixed(2)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm">

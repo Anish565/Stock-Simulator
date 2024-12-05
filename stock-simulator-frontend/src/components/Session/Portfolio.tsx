@@ -133,16 +133,16 @@ const Portfolio: React.FC<PortfolioProps> = () => {
     <div className="p-6">
       {/* Portfolio Summary Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-gray-600 text-sm font-medium mb-2">Wallet Balance</h3>
+        <div className="bg-gradient-to-br from-gray-800 to-gray-600 rounded-lg shadow-md p-6">
+          <h3 className="text-gray-200 text-sm font-medium mb-2">Wallet Balance</h3>
           <p className="text-2xl font-bold">{formatMoney(walletBalance)}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-gray-600 text-sm font-medium mb-2">Total Invested</h3>
+        <div className="bg-gradient-to-br from-gray-800 to-gray-600 rounded-lg shadow-md p-6">
+          <h3 className="text-gray-200 text-sm font-medium mb-2">Total Invested</h3>
           <p className="text-2xl font-bold">{formatMoney(totalInvested)}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-gray-600 text-sm font-medium mb-2">Total P/L</h3>
+        <div className="bg-gradient-to-br from-gray-800 to-gray-600 rounded-lg shadow-md p-6">
+          <h3 className="text-gray-200 text-sm font-medium mb-2">Total P/L</h3>
           <p className={`text-2xl font-bold ${totalProfitLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {formatMoney(totalProfitLoss)}
             <span className="text-sm ml-1 opacity-75">
@@ -153,19 +153,19 @@ const Portfolio: React.FC<PortfolioProps> = () => {
       </div>
 
       {/* Holdings Table */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-4">Your Holdings</h2>
+      <div className="bg-gradient-to-br from-gray-800 to-gray-600 rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-200">Your Holdings</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 text-gray-600 font-semibold">Stock</th>
-                <th className="text-left py-3 px-4 text-gray-600 font-semibold">Quantity</th>
-                <th className="text-left py-3 px-4 text-gray-600 font-semibold">Avg. Buy Price</th>
-                <th className="text-left py-3 px-4 text-gray-600 font-semibold">Current Price</th>
-                <th className="text-left py-3 px-4 text-gray-600 font-semibold">Total Value</th>
-                <th className="text-left py-3 px-4 text-gray-600 font-semibold">P/L</th>
-                <th className="text-left py-3 px-4 text-gray-600 font-semibold">Actions</th>
+                <th className="text-left py-3 px-4 text-gray-300 font-bold">Stock</th>
+                <th className="text-left py-3 px-4 text-gray-300 font-bold">Quantity</th>
+                <th className="text-left py-3 px-4 text-gray-300 font-bold">Avg. Buy Price</th>
+                <th className="text-left py-3 px-4 text-gray-300 font-bold">Current Price</th>
+                <th className="text-left py-3 px-4 text-gray-300 font-bold">Total Value</th>
+                <th className="text-left py-3 px-4 text-gray-300 font-bold">P/L</th>
+                <th className="text-left py-3 px-4 text-gray-300 font-bold">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -181,7 +181,7 @@ const Portfolio: React.FC<PortfolioProps> = () => {
                     <td className="py-3 px-4">{formatMoney(stock.buyPrice)}</td>
                     <td className="py-3 px-4">{formatMoney(stock.currentPrice)}</td>
                     <td className="py-3 px-4">{formatMoney(value)}</td>
-                    <td className={`py-3 px-4 ${profitLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <td className={`py-3 px-4 font-semibold ${profitLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {formatMoney(profitLoss)}
                       <span className="text-sm ml-1 opacity-75">
                         ({plPercent.toFixed(2)}%)
