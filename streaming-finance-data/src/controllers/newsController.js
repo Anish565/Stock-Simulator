@@ -2,7 +2,7 @@ const { fetchNews } = require('../services/newsService');
 const { logger } = require('../utils/logger');
 
 
-// "http://localhost:3000/api/news?q=finance&pageSize=10"
+// "http://localhost:3000/api/news?company=finance&pageSize=10"
 async function getNews(req, res) {
     try {
         const query = req.query.company || 'finance';
