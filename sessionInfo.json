@@ -1,0 +1,48 @@
+{
+    "sessionId": "1234567890",
+    "sortKey": "info",
+    "name": "Session 1",
+    "startAmount": 1000,
+    "targetAmount": 10000,
+    "duration": "30 days"
+}
+{
+    "sessionId": "1234567891",
+    "sortKey": "orders",
+    "orders": [
+        {
+            "stockName": "Apple",
+            "quantity": 100,
+            "price": 150,
+            "purchaseTimeStamp": "2022-01-01T10:00:00Z",
+            "status" : "completed"
+        }
+    ]
+}
+{
+    "sessionId": "1234567892",
+    "sortKey": "currentInfo",
+    "currentWorth": 9000,
+    "walletBalance": 1000,
+    "totalStockValue": 10000 
+}
+{
+    "sessionId": "1234567893",
+    "sortKey": "portfolio",
+    "portfolio": [
+        {
+            "stockName": "Apple",
+            "quantity": 100,
+            "value": 150
+        }
+    ]
+    "totalStockValue": 10000,
+    "walletBalance": 1000
+}
+{
+    "sessionId": "1234567894",
+    "sortKey": "watchlist",
+    "watchlist": [
+        tickerValue
+    ]
+}

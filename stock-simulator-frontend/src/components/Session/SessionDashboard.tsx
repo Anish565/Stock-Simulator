@@ -23,15 +23,17 @@ const SessionDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex space-x-6">
-        {/* Stock Visualizations Placeholder */}
-        <div className="flex-1 bg-blue-800 h-64 flex items-center justify-center text-green-200">
-          Stock Visualizations
+    <div className="p-8 space-y-8 bg-gradient-to-br from-gray-900 to-gray-800">
+      <div className="flex gap-8">
+        {/* Stock Visualizations */}
+        <div className="flex-1 bg-gradient-to-br from-blue-900 to-blue-800 rounded-xl shadow-2xl p-6">
+          <div className="h-64 flex items-center justify-center text-blue-200 font-light tracking-wider">
+            Stock Visualizations
+          </div>
         </div>
 
         {/* List of Stocks */}
-        <div className="w-1/3 bg-[#8b4242] h-64 p-4 overflow-y-auto rounded">
+        <div className="w-1/3 bg-gradient-to-br from-gray-800 to-gray-600 rounded-xl shadow-2xl p-6 backdrop-blur">
           <div className="space-y-4">
             {stocks.map((stock, index) => (
               <StockItem
@@ -45,21 +47,19 @@ const SessionDashboard: React.FC = () => {
         </div>
       </div>
 
-
-
-        {/* News Section */}
-        <div className="w-full bg-gray-300 h-40 p-4 overflow-y-auto rounded">
-          <h3 className="text-black font-semibold mb-2">News</h3>
-          <div className="space-y-2">
-            {newsItems.map((news, index) => (
-              <NewsItem
-                key={index}
-                headline={news.headline}
-                imageUrl={news.imageUrl}
-                link={news.link}
-              />
-            ))}
-          </div>
+      {/* News Section */}
+      <div className="bg-white/10 backdrop-blur rounded-xl shadow-2xl p-6">
+        <h3 className="text-white font-medium mb-4 tracking-wide">Latest News</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {newsItems.map((news, index) => (
+            <NewsItem
+              key={index}
+              headline={news.headline}
+              imageUrl={news.imageUrl}
+              link={news.link}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

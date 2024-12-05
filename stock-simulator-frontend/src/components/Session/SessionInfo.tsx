@@ -13,14 +13,38 @@ interface SessionInfoProps {
 }
 
 const StyledCard = styled(Card)(({ theme }) => ({
-  padding: theme.spacing(3),
+  padding: theme.spacing(4),
   marginBottom: theme.spacing(3),
+  transition: 'transform 0.2s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+  },
+  borderRadius: theme.spacing(2),
 }));
 
 const InfoRow = styled('div')(({ theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
-  marginBottom: theme.spacing(1),
+  alignItems: 'center',
+  marginBottom: theme.spacing(2),
+  transition: 'background-color 0.2s ease',
+  padding: theme.spacing(1),
+  borderRadius: theme.spacing(1),
+  '&:hover': {
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+  },
+}));
+
+const Label = styled(Typography)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  fontWeight: 500,
+  fontSize: '0.875rem',
+  letterSpacing: '0.1px',
+}));
+
+const Value = styled(Typography)(({ theme }) => ({
+  fontWeight: 600,
+  fontSize: '1rem',
 }));
 
 const SessionInfo: React.FC<SessionInfoProps> = ({
@@ -36,49 +60,62 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
   const profitLossPercentage = ((profitLoss / startAmount) * 100).toFixed(2);
   
   return (
-    <StyledCard>
-      <Typography variant="h5" gutterBottom>
+    <StyledCard elevation={0}>
+      <Typography 
+        variant="h5" 
+        gutterBottom 
+        sx={{ 
+          fontWeight: 600,
+          letterSpacing: '-0.5px',
+          mb: 3 
+        }}
+      >
         {sessionName}
       </Typography>
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={{ my: 3 }} />
       
       <InfoRow>
-        <Typography color="textSecondary">Session ID:</Typography>
-        <Typography>{sessionId}</Typography>
+        <Label>Session ID</Label>
+        <Value>{sessionId}</Value>
       </InfoRow>
       
       <InfoRow>
-        <Typography color="textSecondary">Starting Amount:</Typography>
-        <Typography>${startAmount.toLocaleString()}</Typography>
+        <Label>Starting Amount</Label>
+        <Value>${startAmount.toLocaleString()}</Value>
       </InfoRow>
       
       <InfoRow>
-        <Typography color="textSecondary">Amount Invested:</Typography>
-        <Typography>${investedAmount.toLocaleString()}</Typography>
+        <Label>Amount Invested</Label>
+        <Value>${investedAmount.toLocaleString()}</Value>
       </InfoRow>
       
       <InfoRow>
-        <Typography color="textSecondary">Target Amount:</Typography>
-        <Typography>${targetAmount.toLocaleString()}</Typography>
+        <Label>Target Amount</Label>
+        <Value>${targetAmount.toLocaleString()}</Value>
       </InfoRow>
       
       <InfoRow>
-        <Typography color="textSecondary">Duration:</Typography>
-        <Typography>{duration}</Typography>
+        <Label>Duration</Label>
+        <Value>{duration}</Value>
       </InfoRow>
       
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={{ my: 3 }} />
       
       <InfoRow>
-        <Typography color="textSecondary">Current Value:</Typography>
-        <Typography>${currentValue.toLocaleString()}</Typography>
+        <Label>Current Value</Label>
+        <Value sx={{ fontSize: '1.1rem' }}>${currentValue.toLocaleString()}</Value>
       </InfoRow>
       
       <InfoRow>
-        <Typography color="textSecondary">Profit/Loss:</Typography>
-        <Typography color={profitLoss >= 0 ? 'success.main' : 'error.main'}>
+        <Label>Profit/Loss</Label>
+        <Value 
+          sx={{ 
+            color: profitLoss >= 0 ? 'success.main' : 'error.main',
+            fontSize: '1.1rem'
+          }}
+        >
           ${Math.abs(profitLoss).toLocaleString()} ({profitLoss >= 0 ? '+' : '-'}{profitLossPercentage}%)
-        </Typography>
+        </Value>
       </InfoRow>
     </StyledCard>
   );
