@@ -1,4 +1,6 @@
 const express = require('express');
+const http = require('http'); // Required for Socket.IO
+const socketIo = require('socket.io'); // Real-time communication
 const { fetchHistoricalDataFromYahoo } = require('./services/yahooFinanceService');
 const { streamFinanceData } = require('./services/websocketService');
 const { fetchHistoricalData } = require('./controllers/dataController');
@@ -6,12 +8,14 @@ const { getTrendingStocks } = require('./controllers/trendingController');
 const { getNews } = require('./controllers/newsController');
 const { initializeLogger, logger } = require('./utils/logger');
 
-
 const app = express();
 const port = require('./config/serverConfig').port;
 
 // Initialize Logger
 initializeLogger()
+
+// Middleware
+app.use(express.json());
 
 // Global Error Handlers
 process.on('uncaughtException', (err) => {
@@ -31,12 +35,24 @@ process.on('unhandledRejection', (reason, promise) => {
 //app.get('/api/fetched-data', fetchHistoricalData);  // Fetch historical data API
 app.get('/api/news', getNews); // GetNews
 app.get('/api/trending-stocks', getTrendingStocks); // Trending stocks API
-app.use(express.json());
+
+// Create HTTP Server and Attach Socket.IO
+const server = http.createServer(app);
+const io = socketIo(server);
+
 
 
 try {
+    // Handle Client Connections for Real-Time Updates
+    io.on('connection', (socket) => {
+        logger.info('New client connected for real-time stock updates');
+        socket.on('disconnect', () => {
+            logger.info('Client disconnected');
+        });
+    });
+
     // Start server
-    app.listen(port, () => {
+    server.listen(port, () => {
         logger.info(`Server running on http://localhost:${port}`);
         console.log(`Server running on http://localhost:${port}`);
     });
@@ -48,9 +64,9 @@ try {
 // Initialize Background Services
 async function startApp() {
     try {
-        
-        await fetchHistoricalDataFromYahoo(); // Run historical data fetch once at startup
-        streamFinanceData(); // Start real-time data streaming (runs continuously)
+        logger.info("Initializing Background Services...");
+        //await fetchHistoricalDataFromYahoo(); // Run historical data fetch once at startup
+        streamFinanceData(io); // Start real-time data streaming (runs continuously)
     } catch (error) {
         logger.error(`Error initializing application services: ${error.message}`);
         process.exit(1); // Exit the application if initialization fails

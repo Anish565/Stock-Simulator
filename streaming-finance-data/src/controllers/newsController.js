@@ -5,7 +5,8 @@ const { logger } = require('../utils/logger');
 // "http://localhost:3000/api/news?q=finance&pageSize=10"
 async function getNews(req, res) {
     try {
-        const query = req.query.q || 'finance';
+        const query = req.query.company || 'finance';
+        //const query = req.query.q || 'finance';
         const pageSize = req.query.pageSize || 10;
 
         logger.info(`getNews: Received request for news with query ${query}`);
