@@ -30,7 +30,6 @@ async function fetchHistoricalDataFromYahoo() {
                 period2: new Date(endDate),
                 interval: '1d',
             });
-            console.log(historicalData)
             
             // Insert historical data
             logger.info("fetchHistoricalDataFromYahoo: Inserting into Historical Data");
