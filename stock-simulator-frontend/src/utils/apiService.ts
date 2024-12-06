@@ -74,3 +74,20 @@ export const fetchQRCode = async (session: string, appName: string, username: st
       throw error;
     }
   };
+
+export const fetchStockData = async (symbol: string, interval: string) => {
+  try {
+    const response = await axios.get(
+      `${apiEndpoint}/fetch/stocks?symbol=${symbol}&interval=${interval}`
+    );
+    // Transform the data to ensure dates are Date objects
+    const parsedData = response.data.map((item: any) => ({
+      ...item,
+      date: new Date(item.date),
+    }));
+    return parsedData;
+  } catch (error) {
+    console.error("Error fetching stock data:", error);
+    throw error;
+  }
+};
