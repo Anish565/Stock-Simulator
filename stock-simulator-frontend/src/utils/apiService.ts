@@ -91,3 +91,28 @@ export const fetchStockData = async (symbol: string, interval: string) => {
     throw error;
   }
 };
+
+export const fetchStockMetaData = async (symbol: string) => {
+  try {
+    const response = await axios.get(
+      `${apiEndpoint}/fetch/stocks?symbol=${symbol}&interval=meta`
+    );
+
+    return response;
+  } catch (error) {
+    console.error("Error fetching stock data:", error);
+    throw error;
+  }
+};
+
+export const fetchNewsDataFromAPI = async () => {
+  try {
+    const response = await axios.get(
+      `${apiEndpoint}/news/get`
+    );
+    return response;
+  } catch (error) {
+    console.error("Error fetching news:", error);
+    throw error;
+  }
+};
