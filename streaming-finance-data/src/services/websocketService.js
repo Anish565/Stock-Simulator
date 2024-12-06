@@ -23,7 +23,7 @@ protobuf.load(protoPath, (err, root) => {
 });
 
 
-async function streamFinanceData() {
+async function streamFinanceData(io) {
     
     function createWebSocketConnection() {
         try {
@@ -65,12 +65,33 @@ async function streamFinanceData() {
                 try {
                     // Decode the Base64 message and then use protobuf to decode it
                     const decodedBuffer = Buffer.from(event.data, 'base64');
+                    
                     const message = YatickerMessage.decode(decodedBuffer);
+
+                    const symbol = message.id;
+                    const price = message.price;
+                    const timeStamp = message.time;
+                    const dayHigh = message.dayHigh;
+                    const dayLow = message.dayLow;
+                    const dayVolume = message.dayVolume;
 
                     // Log the decoded message content
                     logger.info("Decoded message:", message);
-                    logger.info(`Symbol: ${message.id}, Price: ${message.price}, Timestamp: ${message.time}`);
-                    logger.info(`Day High: ${message.dayHigh}, Day Low: ${message.dayLow}, Volume: ${message.dayVolume}`);
+                    logger.info(`Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStamp}`);
+                    logger.info(`Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}`);
+
+                    
+                    // Insert into Dynamo
+                    
+                    // Broadcast to frontend
+                    io.emit('stock-update', {
+                        symbol: symbol,
+                        price: price,
+                        dayHigh: dayHigh,
+                        dayLow: dayLow,
+                        dayVolume: dayVolume,
+                        timestamp: timeStamp,
+                    });
 
                 } catch (processingError) {
                     logger.error(`Message processing error: ${processingError.message}`);
