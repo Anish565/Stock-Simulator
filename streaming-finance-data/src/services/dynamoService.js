@@ -1,7 +1,8 @@
 const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb");
 const AWS = require('aws-sdk');
+const { response } = require("../app");
 
-async function loadToDynamo(data) {
+async function loadToDynamo(data, interval) {
 
     AWS.config.update({ region: 'us-east-1' });
     const dynamodb = new DynamoDBClient({
@@ -65,20 +66,20 @@ async function loadToDynamo(data) {
       Item: meta,
     });
     const reponse = await dynamodb.send(metaCommand);
-    console.log(reponse);
-
-    //Insert the `quotes` fields
+    // console.log(reponse);
+    console.log(typeof(data.quotes[0]));
+    // Insert the `quotes` fields
     const formattedData = data.quotes.map((quote) => ({
-        M: {
-          volume: { N: quote.volume.toString() },
-          close: { N: quote.close.toString() },
-          date: { S: quote.date },
+          M: {
+            volume: { N: quote.volume != null ? quote.volume.toString() : "0" }, // Default to "0" if null
+            close: { N: quote.close != null ? quote.close.toString() : "0" },   // Default to "0" if null
+            date: { S: quote.date || "N/A" }, // Default to "N/A" if date is missing
         },
       }));
 
     const params = {
         symbol : {S: data.meta.symbol},
-        sortKey: {S: "quotes"},
+        sortKey: {S: interval},
         values: {L: formattedData}
     }
     const quoteCommand = new PutItemCommand({
@@ -86,7 +87,7 @@ async function loadToDynamo(data) {
         Item: params,
       });
       await dynamodb.send(quoteCommand);
-    //   console.log(`Quote for date ${quote.date} inserted successfully.`);
+      // console.log(`Quote for date ${quote.date} inserted successfully.`);
   } catch (error) {
     console.error("Error inserting data into DynamoDB:", error);
   }

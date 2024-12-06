@@ -5,7 +5,7 @@ const { fetchHistoricalDataFromYahoo } = require('./services/yahooFinanceService
 const { streamFinanceData } = require('./services/websocketService');
 const { fetchHistoricalData } = require('./controllers/dataController');
 const { getTrendingStocks } = require('./controllers/trendingController');
-const { getNews } = require('./controllers/newsController');
+const { getNews, getNews2pretty } = require('./controllers/newsController');
 const { initializeLogger, logger } = require('./utils/logger');
 
 const app = express();
@@ -34,6 +34,7 @@ process.on('unhandledRejection', (reason, promise) => {
 // Routes
 //app.get('/api/fetched-data', fetchHistoricalData);  // Fetch historical data API
 app.get('/api/news', getNews); // GetNews
+app.get('/api/polygon/news', getNews2pretty);
 app.get('/api/trending-stocks', getTrendingStocks); // Trending stocks API
 
 // Create HTTP Server and Attach Socket.IO
@@ -65,8 +66,13 @@ try {
 async function startApp() {
     try {
         logger.info("Initializing Background Services...");
-        //await fetchHistoricalDataFromYahoo(); // Run historical data fetch once at startup
-        streamFinanceData(io); // Start real-time data streaming (runs continuously)
+        const periods = ["1D", "5D", "1M", "6M", "YTD", "1Y","5Y"];
+        for (const period of periods) {
+            await fetchHistoricalDataFromYahoo(period);
+        }
+        // await fetchHistoricalDataFromYahoo("5D");
+        // streamFinanceData(io); // Start real-time data streaming (runs continuously)
+        
     } catch (error) {
         logger.error(`Error initializing application services: ${error.message}`);
         process.exit(1); // Exit the application if initialization fails
