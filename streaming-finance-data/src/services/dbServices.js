@@ -4,6 +4,7 @@ const {
     historicalStockTable,
     insertHistoricalDataQuery,
 } = require('../models/dataModel');
+const {loadToDynamo} = require('./dynamoService')
 
 
 // Ensure table exists
@@ -42,6 +43,7 @@ async function insertHistoricalData(ticker, historicalData) {
             
             logger.info(`insertHistoricalData: Inserting historical data ${values}`);
             await pool.query(insertHistoricalDataQuery, values);
+            // await loadToDynamo(historicalData);
             logger.info(`insertHistoricalData: Inserted data for ${ticker} on ${day.date}`);
         }
     } catch (error) {
