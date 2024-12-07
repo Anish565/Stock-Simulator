@@ -2,9 +2,9 @@
 const yahooFinance = require('yahoo-finance2').default;
 const { logger } = require('../utils/logger'); // Import the logger
 const { loadOrCreateConfig } = require('../utils/configReader'); // Import config reader 
-const { ensureTableExists, insertHistoricalData } = require('./dbServices');
+//const { ensureTableExists, insertHistoricalData } = require('./dbServices');
 const {loadToDynamo} = require('./dynamoService')
-const dbClient = require('../config/dbConfig'); 
+//const dbClient = require('../config/dbConfig'); 
 const e = require('express');
 
 
@@ -56,13 +56,14 @@ function calculateStartDate(interval) {
 async function fetchHistoricalDataFromYahoo(period) {
 
     try {
-        // console.log(dbClient, "here 7");
-        // Load configuration (tickers, startDate, endDate) from appConfig.json
-        //const config = loadOrCreateConfig();
-        //const tickers = config.tickers;
-        // const { startDate, endDate } = config.historicalData;
-        const tickers = ["AAPL", "MSFT", "GOOGL"];
-        const [startDate, endDate] = calculateStartDate(period);
+        // Load configuration (tickers) from appConfig.json -> startDate, endDate not using from loadConfig.
+        const config = loadOrCreateConfig();
+        const tickers = config.tickers;
+        const [startDate, endDate] = calculateStartDate(period)
+        
+        logger.info(`fetchHistoricalDataFromYahoo: Tickers available: ${tickers} from startDate: ${startDate}, endDate:${endDate}`);
+        
+        // const tickers = ["AAPL", "MSFT", "GOOGL"];
         
         for (const ticker of tickers) {
             console.log('Ticker:', ticker);

@@ -1,7 +1,6 @@
 const WebSocket = require('websocket').w3cwebsocket;
 const { logger } = require('../utils/logger');
 const { loadOrCreateConfig } = require('../utils/configReader');
-const dbClient = require('../config/dbConfig');
 const protobuf = require('protobufjs');
 const path = require('path');
 
