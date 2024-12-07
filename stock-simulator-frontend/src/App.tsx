@@ -6,6 +6,7 @@ import SessionPage from "./pages/SessionPage";
 import ProfilePage from "./pages/ProfilePage";
 import SessionHistoryPage from "./pages/SessionHistoryPage";
 import MFA from "./pages/MFA";
+
 function App() {
   return (
     <Router>

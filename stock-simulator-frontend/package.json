@@ -28,6 +28,7 @@
     "react-router-dom": "^6.28.0",
     "react-toastify": "^10.0.6",
     "recharts": "^2.14.1",
+    "socket.io-client": "^4.8.1",
     "stock-simulator-frontend": "file:"
   },
   "devDependencies": {
