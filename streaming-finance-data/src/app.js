@@ -80,7 +80,7 @@ async function startApp() {
         logger.info("Initializing Background Services...");
         const periods = ["1D", "5D", "1M", "6M", "YTD", "1Y","5Y"];
         for (const period of periods) {
-            //await fetchHistoricalDataFromYahoo(period);
+            await fetchHistoricalDataFromYahoo(period);
         }
         // await fetchHistoricalDataFromYahoo("5D");
         streamFinanceData(io); // Start real-time data streaming (runs continuously)
