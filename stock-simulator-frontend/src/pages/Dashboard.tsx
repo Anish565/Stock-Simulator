@@ -8,6 +8,7 @@ import NewsItem from "../components/NewsItem";
 import SessionItem from "../components/SessionItem";
 import StockVisualization from "../components/StockVisualization";
 import { fetchStockMetaData, fetchNewsDataFromAPI } from "../utils/apiService";
+import useWebSocket from "../utils/websocketService";
 
 // First, define an interface for the selected stock
 interface SelectedStock {
@@ -35,6 +36,8 @@ const Dashboard: React.FC = () => {
     name: "Apple Inc.",
     metaData: null,
   });
+
+  useWebSocket();
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -73,6 +76,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     fetchNewsData();
+
   }, []);
 
   // Sample data for stocks - updated with symbols
