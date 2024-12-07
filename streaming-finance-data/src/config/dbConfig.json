@@ -1,8 +1,0 @@
-{
-    "host": "stock-app-simulator.ctww8iksw9j8.us-east-1.rds.amazonaws.com",
-    "port": 5432,
-    "user": "postgres",
-    "password": "cloudproject2025",
-    "database": "stock_appl_simulator"
-  }
-  
