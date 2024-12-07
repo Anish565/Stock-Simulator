@@ -8,6 +8,8 @@ const { getTrendingStocks } = require('./controllers/trendingController');
 const { getNews, getNews2pretty } = require('./controllers/newsController');
 const { initializeLogger, logger } = require('./utils/logger');
 
+const cors = require('cors');
+
 const app = express();
 const port = require('./config/serverConfig').port;
 
@@ -15,6 +17,7 @@ const port = require('./config/serverConfig').port;
 initializeLogger()
 
 // Middleware
+app.use(cors({ origin: 'http://localhost:5173', credentials: true })); // Enable CORS for frontend
 app.use(express.json());
 
 // Global Error Handlers
@@ -39,7 +42,14 @@ app.get('/api/trending-stocks', getTrendingStocks); // Trending stocks API
 
 // Create HTTP Server and Attach Socket.IO
 const server = http.createServer(app);
-const io = socketIo(server);
+
+const io = socketIo(server, {
+    cors: {
+        origin: 'http://localhost:5173', // Allow frontend origin
+        methods: ['GET', 'POST'],
+        credentials: true, // Allow credentials (if needed)
+    },
+});
 
 
 
@@ -51,6 +61,8 @@ try {
             logger.info('Client disconnected');
         });
     });
+
+    streamFinanceData(io);
 
     // Start server
     server.listen(port, () => {
@@ -64,19 +76,19 @@ try {
 
 // Initialize Background Services
 async function startApp() {
-    try {
-        logger.info("Initializing Background Services...");
-        const periods = ["1D", "5D", "1M", "6M", "YTD", "1Y","5Y"];
-        for (const period of periods) {
-            await fetchHistoricalDataFromYahoo(period);
-        }
-        // await fetchHistoricalDataFromYahoo("5D");
-        // streamFinanceData(io); // Start real-time data streaming (runs continuously)
+    // try {
+    //     logger.info("Initializing Background Services...");
+    //     const periods = ["1D", "5D", "1M", "6M", "YTD", "1Y","5Y"];
+    //     for (const period of periods) {
+    //         await fetchHistoricalDataFromYahoo(period);
+    //     }
+    //     // await fetchHistoricalDataFromYahoo("5D");
+    //     // streamFinanceData(io); // Start real-time data streaming (runs continuously)
         
-    } catch (error) {
-        logger.error(`Error initializing application services: ${error.message}`);
-        process.exit(1); // Exit the application if initialization fails
-    }
+    // } catch (error) {
+    //     logger.error(`Error initializing application services: ${error.message}`);
+    //     process.exit(1); // Exit the application if initialization fails
+    // }
 }
 
 // Start background services after server starts

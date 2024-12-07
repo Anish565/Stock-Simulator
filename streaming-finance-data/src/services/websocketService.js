@@ -92,7 +92,8 @@ async function streamFinanceData(io) {
                         dayVolume: dayVolume,
                         timestamp: timeStamp,
                     });
-
+                    // localhost websocket url
+                    console.log("Broadcasted to frontend", "http://localhost:3000");
                 } catch (processingError) {
                     logger.error(`Message processing error: ${processingError.message}`);
                 }
