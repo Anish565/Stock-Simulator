@@ -44,7 +44,7 @@ const SellModal: React.FC<SellModalProps> = ({ stock, isOpen, onClose }) => {
   };
 
   const handleSell = () => {
-    if (quantity > 0 && quantity <= stock.quantity) {
+    if (quantity > 0 && quantity <= stock.quantity && sessionId) {
       sellStock(sessionId, stock.symbol, quantity, stock.price);
       onClose();
     }
@@ -118,7 +118,7 @@ const Portfolio: React.FC = () => {
     const loadPortfolio = async () => {
       try {
         setLoading(true);
-        const data = await fetchSessionPortfolio(sessionId);
+        const data = await fetchSessionPortfolio(sessionId || '');
         setPortfolioData(data);
       } catch (err) {
         setError('Failed to load portfolio data');
