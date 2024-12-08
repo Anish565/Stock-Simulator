@@ -3,9 +3,9 @@ const http = require('http'); // Required for Socket.IO
 const socketIo = require('socket.io'); // Real-time communication
 const { fetchHistoricalDataFromYahoo } = require('./services/yahooFinanceService');
 const { streamFinanceData } = require('./services/websocketService');
-const { fetchHistoricalData } = require('./controllers/dataController');
 const { getTrendingStocks } = require('./controllers/trendingController');
 const { getNews, getNews2pretty } = require('./controllers/newsController');
+const { healthCheck } = require('./controllers/healthCheckController');
 const { initializeLogger, logger } = require('./utils/logger');
 
 const cors = require('cors');
@@ -35,15 +35,11 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Routes
-app.get('/api/fetched-data', fetchHistoricalData);  // Fetch historical data API
+app.get('/api/fetched-data', fetchHistoricalDataFromYahoo);  // Fetch historical data API
 app.get('/api/news', getNews); // GetNews
 app.get('/api/polygon/news', getNews2pretty);
 app.get('/api/trending-stocks', getTrendingStocks); // Trending stocks API
-
-//Route for LB health check
-app.get('/health', (req, res) => {
-    res.status(200).send('OK');
-});
+app.get('/health', healthCheck); //healthCheck
 
 // Create HTTP Server and Attach Socket.IO
 const server = http.createServer(app);
