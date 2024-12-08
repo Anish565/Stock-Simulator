@@ -4,17 +4,21 @@ interface UserJwtPayload {
   "cognito:username": string;
   family_name: string;
   given_name: string;
+  email: string;
+  birthdate: string;
 }
 
 interface SimplifiedUserInfo {
   username: string;
   firstName: string;
   lastName: string;
+  email: string;
+  birthdate: string;
 }
 
 export const decodeUserToken = (): SimplifiedUserInfo | null => {
   try {
-    const token = localStorage.getItem('idToken');
+    const token = sessionStorage.getItem('idToken');
     
     if (!token) {
       return null;
@@ -25,7 +29,9 @@ export const decodeUserToken = (): SimplifiedUserInfo | null => {
     return {
       username: decodedToken["cognito:username"],
       firstName: decodedToken.given_name,
-      lastName: decodedToken.family_name
+      lastName: decodedToken.family_name,
+      email: decodedToken.email,
+      birthdate: decodedToken.birthdate
     };
   } catch (error) {
     console.error('Error decoding token:', error);

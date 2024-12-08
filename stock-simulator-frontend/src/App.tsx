@@ -7,8 +7,13 @@ import ProfilePage from "./pages/ProfilePage";
 import SessionHistoryPage from "./pages/SessionHistoryPage";
 import MFA from "./pages/MFA";
 import ProtectedRoute from "./utils/ProtectedRoute";
+import { useEffect } from "react";
+import { setupTokenRefresh } from "./utils/refreshingToken";
 
 function App() {
+  useEffect(() => {
+    setupTokenRefresh();
+  }, []);
   return (
     <Router>
       <Routes>
