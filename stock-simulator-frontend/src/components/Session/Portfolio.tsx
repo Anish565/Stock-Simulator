@@ -15,10 +15,6 @@ interface PortfolioData {
   totalStockValue: number;
 }
 
-interface PortfolioProps {
-  sessionId: string;
-}
-
 const formatMoney = (amount: number): string => {
   return `$${amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
 };
@@ -85,7 +81,7 @@ const SellModal: React.FC<SellModalProps> = ({ stock, isOpen, onClose, onSell })
   );
 };
 
-const Portfolio: React.FC<PortfolioProps> = () => {
+const Portfolio: React.FC = () => {
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -97,6 +93,9 @@ const Portfolio: React.FC<PortfolioProps> = () => {
     const loadPortfolio = async () => {
       try {
         setLoading(true);
+        if (!sessionId) {
+          throw new Error('Session ID is required');
+        }
         const data = await fetchSessionPortfolio(sessionId);
         setPortfolioData(data);
       } catch (err) {
