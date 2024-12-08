@@ -60,11 +60,7 @@ const SessionPage: React.FC = () => {
           {activeTab === 'info' && <SessionInfo {...sessionData} />}
           {activeTab === 'watchlist' && <Watchlist />}
           {activeTab === 'portfolio' && (
-            <Portfolio 
-              walletBalance={sessionData.startAmount} 
-              totalInvested={sessionData.investedAmount} 
-              stocks={[]} 
-            />
+            <Portfolio />
           )}
           {activeTab === 'orders' && <Orders />}
         </div>
