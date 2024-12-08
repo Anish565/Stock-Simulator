@@ -131,3 +131,30 @@ export const createSession = async (name: string, startAmount: number, targetAmo
     throw error;
   }
 };
+
+export const fetchSessions = async (userId: string, inProgress: boolean) => {
+  try {
+    console.log("Fetching sessions API Call:", { userId, inProgress });
+    const response = await axios.get(`${apiEndpoint}/session?userId=${userId}&inProgress=${inProgress}`);
+
+    console.log("Fetch sessionAPI Response:", response.data);
+    
+    // The response.data already contains the parsed object with sessions array
+    const { sessions } = response.data;
+
+    console.log("Fetched sessions from API:", sessions);
+    
+    // Transform the DynamoDB format to a simpler object structure
+    return sessions.map((session: any) => ({
+      id: session.sessionId.S,
+      name: session.name.S,
+      startAmount: Number(session.startAmount.N),
+      targetAmount: Number(session.targetAmount.N),
+      duration: session.duration.S,
+      inProgress: session.inProgress.BOOL
+    }));
+  } catch (error) {
+    console.error("Error fetching sessions:", error);
+    throw error;
+  }
+};
