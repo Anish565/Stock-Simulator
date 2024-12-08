@@ -116,3 +116,18 @@ export const fetchNewsDataFromAPI = async () => {
     throw error;
   }
 };
+
+export const createSession = async (name: string, startAmount: number, targetAmount: number, duration: string, userId: string) => {
+  try {
+    console.log("Creating session:", { name, startAmount, targetAmount, duration, userId });
+    const response = await axios.post(
+      `${apiEndpoint}/session/create`,
+      { name, startAmount, targetAmount, duration, userId }
+    );
+    console.log("Session created successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating session:", error);
+    throw error;
+  }
+};
