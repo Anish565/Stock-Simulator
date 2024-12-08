@@ -7,8 +7,11 @@ import StockItem from "../components/StockItem";
 import NewsItem from "../components/NewsItem";
 import SessionItem from "../components/SessionItem";
 import StockVisualization from "../components/StockVisualization";
-import { fetchStockMetaData, fetchNewsDataFromAPI } from "../utils/apiService";
+import { fetchStockMetaData, fetchNewsDataFromAPI, fetchSessions, deleteSession } from "../utils/apiService";
 import useWebSocket from "../utils/websocketService";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { decodeUserToken } from "../utils/jwtDecode";
 
 // First, define an interface for the selected stock
 interface SelectedStock {
@@ -23,21 +26,48 @@ interface News {
   image_url?: string;
 }
 
+interface Session {
+  id: string;
+  name: string;
+  startAmount: number;
+  targetAmount: number;
+  duration: string;
+  inProgress: boolean;
+}
 
 const Dashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newsItems, setNewsItems] = useState<News[]>([]);
-  const [sessions, setSessions] = useState([
-    { id: 1, name: "Session 1" },
-    { id: 2, name: "Session 2" },
-  ]);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const accessToken = sessionStorage.getItem("accessToken") || "";
   const [selectedStock, setSelectedStock] = useState<SelectedStock>({
     symbol: "AAPL",
     name: "Apple Inc.",
     metaData: null,
   });
+  const [isLoading, setIsLoading] = useState(true);
 
-  useWebSocket();
+  // useWebSocket();
+
+  useEffect(() => {
+    const loadSessions = async () => {
+      try {
+        console.log('Fetching sessions');
+        const user = decodeUserToken();
+        // TODO: Replace "testUser" with actual user ID from authentication
+        const fetchedSessions = await fetchSessions(user?.username || "", true);
+        console.log('Fetched sessions:', fetchedSessions);
+        setSessions(fetchedSessions);
+      } catch (error) {
+        console.error("Failed to load sessions:", error);
+        // Optionally show an error message to the user
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSessions();
+  }, []);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -47,8 +77,30 @@ const Dashboard: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const handleDeleteSession = (id: number) => {
-    setSessions(sessions.filter(session => session.id !== id));
+  const handleDeleteSession = async (id: string) => {
+    try {
+      // Show loading toast
+      const toastId = toast.loading("Deleting session...");
+      
+      // Call delete API
+      await deleteSession(id);
+      
+      // Update local state
+      setSessions(sessions.filter(session => session.id !== id));
+      
+      // Update toast to show success
+      toast.update(toastId, {
+        render: "Session deleted successfully",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000
+      });
+    } catch (error) {
+      // Show error toast
+      toast.error("Failed to delete session", {
+        autoClose: 3000
+      });
+    }
   };
 
   const handleStockSelect = async (symbol: string, name: string) => {
@@ -144,22 +196,8 @@ const Dashboard: React.FC = () => {
     { symbol: "RACE", name: "Ferrari N.V.", price: 443.22, changePercentage: 1.33 },
   ];
 
-  // const newsItems = [
-  //   {
-  //     headline: "Trump tariff promises have some retailers facing 'new reality'",
-  //     imageUrl: "https://s.yimg.com/uu/api/res/1.2/XM.2ST7knnHBpMTC4HBhOA--~B/Zmk9c3RyaW07aD0zNjk7cT04MDt3PTY1NjthcHBpZD15dGFjaHlvbg--/https://s.yimg.com/os/creatr-uploaded-images/2024-10/43f5e7d0-9d48-11ef-be7e-2d1972861d6c.cf.webp",
-  //     link: "https://finance.yahoo.com/news/trumps-tariff-promises-have-import-heavy-retailers-facing-new-reality-133545785.html"
-  //   },
-  //   {
-  //     headline: "What’s next for nuclear stocks after regulatory pushback?",
-  //     imageUrl: "https://s.yimg.com/ny/api/res/1.2/fId6RxuBiX385Aiiqdqkxw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTk2MDtoPTYzOTtjZj13ZWJw/https://s.yimg.com/os/creatr-uploaded-images/2024-11/abfed7e0-9e12-11ef-bb97-0882bfcc2cef",
-  //     link: "https://finance.yahoo.com/news/whats-next-for-nuclear-stocks-after-regulatory-pushback-160027265.html"
-  //   },
-  //   {
-  //     headline: "Cryptocurrency market experiences high volatility",
-  //     link: "https://www.bloomberg.com/news/articles/2024-10-30/cryptocurrency-market-experiences-high-volatility",
-  //   },
-  // ];
+  // const user = decodeUserToken();
+  // console.log("User:", user);
 
   return (
     <Layout>
@@ -180,6 +218,7 @@ const Dashboard: React.FC = () => {
                     key={stock.symbol}
                     {...stock}
                     onSelect={() => handleStockSelect(stock.symbol, stock.name)}
+
                   />
                 ))}
               </div>
@@ -187,9 +226,14 @@ const Dashboard: React.FC = () => {
           </div>
 
           <div className="flex space-x-6 h-64">
-            {/* Session Section - Updated styling */}
+            {/* Session Section */}
             <div className="flex-1 bg-gray-500/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow-lg h-full p-4 relative overflow-y-auto">
-              {sessions.length === 0 ? (
+              {accessToken ? (  
+                isLoading ? (
+                  <div className="flex items-center justify-center h-full">
+                  <div className="text-gray-300">Loading sessions...</div>
+                </div>
+              ) : sessions.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full">
                   <button
                     className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg mb-2 flex items-center justify-center active:scale-95 transition-all duration-100"
@@ -211,8 +255,20 @@ const Dashboard: React.FC = () => {
                     </button>
                   </div>
                   {sessions.map((session) => (
-                    <SessionItem key={session.id} name={session.name} onDelete={() => handleDeleteSession(session.id)} />
+                    <SessionItem
+                      key={session.id}
+                      name={session.name}
+                      onDelete={() => handleDeleteSession(session.id)}
+                      sessionId={session.id}
+                    />
                   ))}
+                </div>
+              )
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full">
+                  <p className="text-gray-300">Please  <a href="/login" className="text-blue-500 hover:text-blue-600">Login</a> to view sessions</p>
+                  {/* make the login in the p a link to the login page */}
+                 
                 </div>
               )}
             </div>
@@ -235,6 +291,19 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+      
       {isModalOpen && <SessionModal onClose={closeModal} />}
     </Layout> 
   );
