@@ -2,13 +2,25 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faArrowLeft, faUserCircle, faHome, faUser, faHistory } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
+import { logout } from "../utils/apiService";
+import { useNavigate } from "react-router-dom";
 
 interface SidebarProps {
   profileImageUrl?: string; // Optional URL for profile image
 }
 
+
+
 const Sidebar: React.FC<SidebarProps> = ({ profileImageUrl }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    await logout();
+    sessionStorage.removeItem("idToken");
+    sessionStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    navigate("/login");
+  };
 
   return (
     <div
@@ -68,7 +80,9 @@ const Sidebar: React.FC<SidebarProps> = ({ profileImageUrl }) => {
             <FontAwesomeIcon icon={faUserCircle} size="2x" className="text-gray-400" />
           )}
           <span className={`${!isSidebarOpen ? 'opacity-0 invisible' : 'opacity-100 visible'} transition-all duration-300`}>
-            <button className="text-gray-400 hover:text-white transition-colors">
+            <button className="text-gray-400 hover:text-white transition-colors"
+              onClick={handleLogout}
+            >
               Sign out
             </button>
           </span>
