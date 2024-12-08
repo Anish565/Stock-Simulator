@@ -3,6 +3,8 @@ const { logger } = require('../utils/logger');
 const { loadOrCreateConfig } = require('../utils/configReader');
 const protobuf = require('protobufjs');
 const path = require('path');
+const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb");
+const AWS = require('aws-sdk');
 
 // Load the protobuf schema
 const protoPath = path.resolve(__dirname, '../config/yaticker.proto');
@@ -70,6 +72,8 @@ async function streamFinanceData(io) {
                     const symbol = message.id;
                     const price = message.price;
                     const timeStamp = message.time;
+                    const timeStampUTC = new Date(timeStamp * 1000).toISOString();
+                    const minutes = (new Date(timeStampUTC)).getUTCMinutes();
                     const dayHigh = message.dayHigh;
                     const dayLow = message.dayLow;
                     const dayVolume = message.dayVolume;
@@ -80,15 +84,79 @@ async function streamFinanceData(io) {
                     logger.debug(`streamFinanceData: Raw decoded buffer: ${decodedBuffer.toString('utf-8')}`);
 
                     // Log the decoded message content
+                    logger.info("Decoded message:", message);
+                    logger.info(`Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStampUTC}`);
+                    logger.info(`Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}`);
+
+                    
+                    // Insert into Dynamo
+
+                    AWS.config.update({ region: 'us-east-1' });
+                    const dynamodb = new DynamoDBClient({
+                    region: "us-east-1",
+                    credentials: {
+                        accessKeyId: "AKIAZI2LHLFXQE4MB2QP",
+                        secretAccessKey: "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",
+                    },
+                    });
+
+                    const formatItem = (item) => {
+                        if (typeof item === "string") {
+                          return { S: item };
+                        }
+                        if (typeof item === "number") {
+                          return { N: item.toString() };
+                        }
+                        if (typeof item === "boolean") {
+                          return { BOOL: item };
+                        }
+                        if (item instanceof Date) {
+                          return { S: item.toISOString() };
+                        }
+                        if (Array.isArray(item)) {
+                          return { L: item.map(formatItem) };
+                        }
+                        if (item && typeof item === "object") {
+                          return {
+                            M: Object.fromEntries(
+                              Object.entries(item).map(([key, value]) => [key, formatItem(value)])
+                            ),
+                          };
+                        }
+                        return { NULL: true };
+                      };
+
+                      try {
+                        // Insert the `meta` fields
+                        const params = {
+                            symbol: {S:symbol},
+                            sortKey: {S:minutes},
+                            price: {N:price},
+                            dayVolume: {N:dayVolume},
+                            timeStamp: {S:timeStampUTC},
+                            changePercent: {N:changePercent},
+                            openPrice: {N:openPrice},
+                            previousClose: {N:previousClose}
+                        };
+                        const metaCommand = new PutItemCommand({
+                          TableName: "websocket_data", 
+                          Item: params,
+                        });
+                        console.log(metaCommand);
+                        logger.info(metaCommand);
+                        const reponse = await dynamodb.send(metaCommand);
+                        console.log(reponse);
+                        logger.info(reponse);
+                    } catch (error) {
+                        console.error("Error inserting data into DynamoDB:", error);
+                    }
+
 
                     // Log the decoded message as JSON
                     logger.info(`Full decoded message: ${JSON.stringify(message, (key, value) =>
                         typeof value === 'bigint' ? value.toString() : value // Convert BigInt to string for JSON compatibility
                     )}`);
                     logger.info(`streamFinanceData: Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStamp}, Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}, ChangePercent: ${changePercent}, openPrice: ${openPrice}, previousClose: ${previousClose}`);
-
-                    
-                    // Insert into Dynamo
                     
                     // Broadcast to frontend
                     io.emit('stock-update', {
