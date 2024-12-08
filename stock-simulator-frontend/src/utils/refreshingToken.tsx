@@ -25,6 +25,7 @@ export const setupTokenRefresh = () => {
             }
 
             const data = await response.json();
+            console.log("Tokens refreshed successfully:", data);
             sessionStorage.setItem('accessToken', data.access_token);
             sessionStorage.setItem('idToken', data.id_token);
 
@@ -45,7 +46,7 @@ export const setupTokenRefresh = () => {
     refreshTokens();
 
     // Refresh tokens every 55 minutes
-    const intervalId = setInterval(refreshTokens, 60 * 1000);
+    const intervalId = setInterval(refreshTokens, 55 * 60 * 1000);
 
     // Cleanup function to clear the interval
     return () => clearInterval(intervalId);

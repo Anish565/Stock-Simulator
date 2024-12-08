@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createSession } from "../utils/apiService";
 import { toast } from "react-toastify";
+import { decodeUserToken } from "../utils/jwtDecode";
 
 interface SessionModalProps {
   onClose: () => void;
@@ -19,7 +20,8 @@ const SessionModal: React.FC<SessionModalProps> = ({ onClose }) => {
     event.preventDefault();
     setIsLoading(true);
 
-    const userId = "testUser";
+    const userInfo = decodeUserToken();
+    const userId = userInfo?.username;
 
     try {
       const response = await createSession(
@@ -27,12 +29,13 @@ const SessionModal: React.FC<SessionModalProps> = ({ onClose }) => {
         parseFloat(startAmount),
         parseFloat(targetAmount),
         duration,
-        userId
+        userId || ''
       );
 
-      const { sessionId: createdSessionId } = JSON.parse(response.body);
+      const responseBody = JSON.parse(response.body);
+      const { sessionId: createdSessionId } = responseBody;
       toast.success("Session created successfully!");
-      navigate("/session");
+      navigate(`/session/${createdSessionId}`);
     } catch (error) {
       console.error("Error creating session:", error);
       toast.error("Failed to create session");

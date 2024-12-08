@@ -32,20 +32,6 @@ export const loginUser = async (username: string, password: string) => {
     }
 }
 
-export const logout = async () => {
-  try {
-    const userToken = sessionStorage.getItem("accessToken");
-
-    const response = await axios.post(`${apiEndpoint}/logout`,{
-      accessToken: userToken
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error logging out user:", error);
-    throw error;
-  }
-};
-
 export const fetchQRCode = async (session: string, appName: string, username: string) => {
     try {
       const response = await axios.post(`${apiEndpoint}/auth/qrcode`, {
@@ -139,10 +125,21 @@ export const fetchNewsDataFromAPI = async () => {
 
 export const createSession = async (name: string, startAmount: number, targetAmount: number, duration: string, userId: string) => {
   try {
+    const userToken = sessionStorage.getItem("accessToken");
+    if (!userToken) {
+      throw new Error("No access token found in session storage");
+    }
+    
+    console.log("Token being used:", userToken);
     console.log("Creating session:", { name, startAmount, targetAmount, duration, userId });
     const response = await axios.post(
       `${apiEndpoint}/session/create`,
-      { name, startAmount, targetAmount, duration, userId }
+      { name, startAmount, targetAmount, duration, userId },
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`
+        }
+      }
     );
     console.log("Session created successfully:", response.data);
     return response.data;
@@ -191,8 +188,14 @@ export const fetchSessions = async (userId: string, inProgress: boolean) => {
 
 export const deleteSession = async (sessionId: string) => {
   try {
+    const userToken = sessionStorage.getItem("accessToken");
     const response = await axios.delete(
-      `${apiEndpoint}/session/delete?sessionId=${sessionId}`
+      `${apiEndpoint}/session/delete?sessionId=${sessionId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`
+        }
+      }
     );
     return response.data;
   } catch (error) {
@@ -203,9 +206,15 @@ export const deleteSession = async (sessionId: string) => {
 
 export const fetchSessionOrders = async (sessionId: string) => {
   try {
+    const userToken = sessionStorage.getItem("accessToken");
     console.log("Fetching session orders API Call:", { sessionId });
     const response = await axios.get(
-      `${apiEndpoint}/session/get/info?sessionId=${sessionId}&sortKey=orders`
+      `${apiEndpoint}/session/get/info?sessionId=${sessionId}&sortKey=orders`,
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`
+        }
+      }
     );
     console.log("Get orders API Response:", response.data);
     return response.data.data.orders;
@@ -217,9 +226,15 @@ export const fetchSessionOrders = async (sessionId: string) => {
 
 export const fetchSessionPortfolio = async (sessionId: string) => {
   try {
+    const userToken = sessionStorage.getItem("accessToken");
     console.log("Fetching session portfolio API Call:",  sessionId );
     const response = await axios.get(
-      `${apiEndpoint}/session/get/info?sessionId=${sessionId}&sortKey=portfolio`
+      `${apiEndpoint}/session/get/info?sessionId=${sessionId}&sortKey=portfolio`,
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`
+        }
+      }
     );
     console.log("Get portfolio API Response:", response.data);
     return response.data.data;
@@ -231,9 +246,15 @@ export const fetchSessionPortfolio = async (sessionId: string) => {
 
 export const fetchSessionWatchlist = async (sessionId: string) => {
   try {
+    const userToken = sessionStorage.getItem("accessToken");
     console.log("Fetching session watchlist API Call:", sessionId);
     const response = await axios.get(
-      `${apiEndpoint}/session/get/info?sessionId=${sessionId}&sortKey=watchlist`
+      `${apiEndpoint}/session/get/info?sessionId=${sessionId}&sortKey=watchlist`,
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`
+        }
+      }
     );
     console.log("Get watchlist API Response:", response.data);
     return response.data.data.watchlist;
@@ -245,8 +266,14 @@ export const fetchSessionWatchlist = async (sessionId: string) => {
 
 export const fetchSessionInfo = async (sessionId: string) => {
   try {
+    const userToken = sessionStorage.getItem("accessToken");
     console.log("Fetching session info API Call:", sessionId);
-    const response = await axios.get(`${apiEndpoint}/session/get/info?sessionId=${sessionId}`);
+    const response = await axios.get(`${apiEndpoint}/session/get/info?sessionId=${sessionId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${userToken}`
+      }
+    });
     
     if (!response.data || !response.data.data) {
       throw new Error('Invalid response format from API');
@@ -285,7 +312,13 @@ export const fetchSessionInfo = async (sessionId: string) => {
 
 export const sellStock = async (sessionId: string, symbol: string, quantity: number, price: number) => {
   try {
-    const response = await axios.post(`${apiEndpoint}/trade/sell`, { sessionId, symbol, quantity, price });
+    const userToken = sessionStorage.getItem("accessToken");
+    const response = await axios.post(`${apiEndpoint}/trade/sell`, { sessionId, symbol, quantity, price },
+    {
+      headers: {
+        Authorization: `Bearer ${userToken}`
+      }
+    });
     return response.data;
   } catch (error) {
     console.error("Error selling stock:", error);
@@ -295,6 +328,7 @@ export const sellStock = async (sessionId: string, symbol: string, quantity: num
 
 export const buyStock = async (sessionId: string, symbol: string, quantity: number, price: number) => {
   try {
+    const userToken = sessionStorage.getItem("accessToken");
     console.log("Buying stock API Call:", { sessionId, symbol, quantity, price });
     const response = await axios.post(`${apiEndpoint}/trade/buy`, {
       sessionId,
@@ -302,6 +336,11 @@ export const buyStock = async (sessionId: string, symbol: string, quantity: numb
       quantity,
       price,
       current_market_vol: 1034839 // Dummy value as requested
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${userToken}`
+      }
     });
     console.log("Buy stock API Response:", response.data);
     return response.data;
