@@ -7,8 +7,10 @@ import StockItem from "../components/StockItem";
 import NewsItem from "../components/NewsItem";
 import SessionItem from "../components/SessionItem";
 import StockVisualization from "../components/StockVisualization";
-import { fetchStockMetaData, fetchNewsDataFromAPI, fetchSessions } from "../utils/apiService";
+import { fetchStockMetaData, fetchNewsDataFromAPI, fetchSessions, deleteSession } from "../utils/apiService";
 import useWebSocket from "../utils/websocketService";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // First, define an interface for the selected stock
 interface SelectedStock {
@@ -73,8 +75,29 @@ const Dashboard: React.FC = () => {
   };
 
   const handleDeleteSession = async (id: string) => {
-    // TODO: Implement delete session API call
-    setSessions(sessions.filter(session => session.id !== id));
+    try {
+      // Show loading toast
+      const toastId = toast.loading("Deleting session...");
+      
+      // Call delete API
+      await deleteSession(id);
+      
+      // Update local state
+      setSessions(sessions.filter(session => session.id !== id));
+      
+      // Update toast to show success
+      toast.update(toastId, {
+        render: "Session deleted successfully",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000
+      });
+    } catch (error) {
+      // Show error toast
+      toast.error("Failed to delete session", {
+        autoClose: 3000
+      });
+    }
   };
 
   const handleStockSelect = async (symbol: string, name: string) => {
@@ -253,6 +276,19 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+      
       {isModalOpen && <SessionModal onClose={closeModal} />}
     </Layout> 
   );

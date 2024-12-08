@@ -158,3 +158,15 @@ export const fetchSessions = async (userId: string, inProgress: boolean) => {
     throw error;
   }
 };
+
+export const deleteSession = async (sessionId: string) => {
+  try {
+    const response = await axios.delete(
+      `${apiEndpoint}/session/delete?sessionId=${sessionId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting session:", error);
+    throw error;
+  }
+};
