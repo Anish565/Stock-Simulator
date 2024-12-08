@@ -11,6 +11,7 @@ import { fetchStockMetaData, fetchNewsDataFromAPI, fetchSessions, deleteSession 
 import useWebSocket from "../utils/websocketService";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { decodeUserToken } from "../utils/jwtDecode";
 
 // First, define an interface for the selected stock
 interface SelectedStock {
@@ -45,14 +46,15 @@ const Dashboard: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  useWebSocket();
+  // useWebSocket();
 
   useEffect(() => {
     const loadSessions = async () => {
       try {
         console.log('Fetching sessions');
+        const user = decodeUserToken();
         // TODO: Replace "testUser" with actual user ID from authentication
-        const fetchedSessions = await fetchSessions("testUser", true);
+        const fetchedSessions = await fetchSessions(user?.username || "", true);
         console.log('Fetched sessions:', fetchedSessions);
         setSessions(fetchedSessions);
       } catch (error) {
@@ -193,6 +195,9 @@ const Dashboard: React.FC = () => {
     { symbol: "RACE", name: "Ferrari N.V.", price: 443.22, changePercentage: 1.33 },
   ];
 
+  // const user = decodeUserToken();
+  // console.log("User:", user);
+
   return (
     <Layout>
       <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -212,7 +217,7 @@ const Dashboard: React.FC = () => {
                     key={stock.symbol}
                     {...stock}
                     onSelect={() => handleStockSelect(stock.symbol, stock.name)}
-                    
+
                   />
                 ))}
               </div>

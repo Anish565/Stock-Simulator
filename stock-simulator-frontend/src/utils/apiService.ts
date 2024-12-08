@@ -32,6 +32,20 @@ export const loginUser = async (username: string, password: string) => {
     }
 }
 
+export const logout = async () => {
+  try {
+    const userToken = sessionStorage.getItem("accessToken");
+
+    const response = await axios.post(`${apiEndpoint}/logout`,{
+      accessToken: userToken
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error logging out user:", error);
+    throw error;
+  }
+};
+
 export const fetchQRCode = async (session: string, appName: string, username: string) => {
     try {
       const response = await axios.post(`${apiEndpoint}/auth/qrcode`, {
@@ -107,8 +121,14 @@ export const fetchStockMetaData = async (symbol: string) => {
 
 export const fetchNewsDataFromAPI = async () => {
   try {
+    const userToken = sessionStorage.getItem("accessToken");
     const response = await axios.get(
-      `${apiEndpoint}/news/get`
+      `${apiEndpoint}/news/get`,
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`
+        }
+      }
     );
     return response;
   } catch (error) {
@@ -134,9 +154,19 @@ export const createSession = async (name: string, startAmount: number, targetAmo
 
 export const fetchSessions = async (userId: string, inProgress: boolean) => {
   try {
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+    const userToken = sessionStorage.getItem("accessToken");
     console.log("Fetching sessions API Call:", { userId, inProgress });
-    const response = await axios.get(`${apiEndpoint}/session?userId=${userId}&inProgress=${inProgress}`);
-
+    const response = await axios.get(`${apiEndpoint}/session?userId=${userId}&inProgress=${inProgress}`,
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`
+        }
+      }
+    );
+    
     console.log("Fetch sessionAPI Response:", response.data.sessions);
     
     // The response.data already contains the parsed object with sessions array
