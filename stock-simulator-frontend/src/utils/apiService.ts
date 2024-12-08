@@ -252,3 +252,13 @@ export const fetchSessionInfo = async (sessionId: string) => {
     throw error;
   }
 };
+
+export const sellStock = async (sessionId: string, symbol: string, quantity: number, price: number) => {
+  try {
+    const response = await axios.post(`${apiEndpoint}/trade/sell`, { sessionId, symbol, quantity, price });
+    return response.data;
+  } catch (error) {
+    console.error("Error selling stock:", error);
+    throw error;
+  }
+};
