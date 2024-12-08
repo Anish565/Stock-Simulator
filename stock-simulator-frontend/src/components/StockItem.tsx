@@ -117,8 +117,34 @@ const StockItem: React.FC<StockItemProps> = ({
         quantity, 
         price
       );
-      console.log(response);
-      toast.success(`Successfully purchased ${quantity} shares of ${symbol}!`);
+
+      console.log("this is the returned response", response);
+      if (!response.statusCode) {
+        throw new Error('Invalid response from server');
+      }
+
+      switch (response.statusCode) {
+        case 200:
+          toast.success(`Successfully purchased ${quantity} shares of ${symbol}!`);
+          break;
+        case 400:
+          toast.error(`Invalid request: ${response.message}`);
+          break;
+        case 401:
+          toast.error(`Authentication required. Please log in again.`);
+          break;
+        case 403:
+          toast.error(`You don't have permission to make this purchase.`);
+          break;
+        case 404:
+          toast.error(`Stock ${symbol} not found.`);
+          break;
+        case 500:
+          toast.error(`Server error: ${response.message || 'Unknown error'}`);
+          break;
+        default:
+          toast.error(`Failed to purchase ${symbol}: ${response.message || 'Unknown error'}`);
+      }
       setIsModalOpen(false);
     } catch (error) {
       toast.error(`Failed to purchase ${symbol}: ${error instanceof Error ? error.message : 'Unknown error'}`);

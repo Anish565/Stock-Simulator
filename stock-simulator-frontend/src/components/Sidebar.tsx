@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faArrowLeft, faUserCircle, faHome, faUser, faHistory } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
-import { logout } from "../utils/apiService";
 import { useNavigate } from "react-router-dom";
 
 interface SidebarProps {
@@ -15,7 +14,6 @@ const Sidebar: React.FC<SidebarProps> = ({ profileImageUrl }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const handleLogout = async () => {
-    await logout();
     sessionStorage.removeItem("idToken");
     sessionStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");

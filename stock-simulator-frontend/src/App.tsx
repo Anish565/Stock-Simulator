@@ -11,9 +11,9 @@ import { useEffect } from "react";
 import { setupTokenRefresh } from "./utils/refreshingToken";
 
 function App() {
-  useEffect(() => {
-    setupTokenRefresh();
-  }, []);
+  // useEffect(() => {
+  //   setupTokenRefresh();
+  // }, []);
   return (
     <Router>
       <Routes>
