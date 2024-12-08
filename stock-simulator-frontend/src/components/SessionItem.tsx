@@ -5,9 +5,10 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 interface SessionItemProps {
   name: string;
   onDelete: () => void;
+  sessionId: string;
 }
 
-const SessionItem: React.FC<SessionItemProps> = ({ name, onDelete }) => {
+const SessionItem: React.FC<SessionItemProps> = ({ name, onDelete, sessionId }) => {
   const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     event.preventDefault();
@@ -15,7 +16,7 @@ const SessionItem: React.FC<SessionItemProps> = ({ name, onDelete }) => {
   };
 
   return (
-    <Link to="/session" className="block transition-all duration-200">
+    <Link to={`/session/${sessionId}`} className="block transition-all duration-200">
       <div className="group relative flex items-center justify-between rounded-lg bg-gradient-to-r from-slate-800 to-slate-700 p-4 shadow-lg transition-all duration-200 hover:from-slate-700 hover:to-slate-600 hover:shadow-xl">
         <span className="font-medium text-slate-100 transition-colors duration-200 group-hover:text-white">
           {name}
