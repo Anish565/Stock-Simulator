@@ -18,15 +18,15 @@ const SessionPage: React.FC = () => {
   ];
 
   // Mock data for SessionInfo - replace with real data from your backend
-  const sessionData = {
-    sessionId: "sess_123456",
-    sessionName: "My Trading Session",
-    startAmount: 100000,
-    investedAmount: 75000,
-    targetAmount: 150000,
-    duration: "2024-01-01 to 2024-12-31",
-    currentValue: 110000
-  };
+  // const sessionData = {
+  //   sessionId: "sess_123456",
+  //   sessionName: "My Trading Session",
+  //   startAmount: 100000,
+  //   investedAmount: 75000,
+  //   targetAmount: 150000,
+  //   duration: "2024-01-01 to 2024-12-31",
+  //   currentValue: 110000
+  // };
 
   return (
     <Layout>
@@ -57,7 +57,7 @@ const SessionPage: React.FC = () => {
         {/* Tab Content - wrapped in a glass-morphism container */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 shadow-xl border border-gray-700">
           {activeTab === 'dashboard' && <SessionDashboard />}
-          {activeTab === 'info' && <SessionInfo {...sessionData} />}
+          {activeTab === 'info' && <SessionInfo/>}
           {activeTab === 'watchlist' && <Watchlist />}
           {activeTab === 'portfolio' && (
             <Portfolio />
