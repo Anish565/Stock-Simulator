@@ -144,23 +144,6 @@ const Dashboard: React.FC = () => {
     { symbol: "RACE", name: "Ferrari N.V.", price: 443.22, changePercentage: 1.33 },
   ];
 
-  // const newsItems = [
-  //   {
-  //     headline: "Trump tariff promises have some retailers facing 'new reality'",
-  //     imageUrl: "https://s.yimg.com/uu/api/res/1.2/XM.2ST7knnHBpMTC4HBhOA--~B/Zmk9c3RyaW07aD0zNjk7cT04MDt3PTY1NjthcHBpZD15dGFjaHlvbg--/https://s.yimg.com/os/creatr-uploaded-images/2024-10/43f5e7d0-9d48-11ef-be7e-2d1972861d6c.cf.webp",
-  //     link: "https://finance.yahoo.com/news/trumps-tariff-promises-have-import-heavy-retailers-facing-new-reality-133545785.html"
-  //   },
-  //   {
-  //     headline: "What’s next for nuclear stocks after regulatory pushback?",
-  //     imageUrl: "https://s.yimg.com/ny/api/res/1.2/fId6RxuBiX385Aiiqdqkxw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTk2MDtoPTYzOTtjZj13ZWJw/https://s.yimg.com/os/creatr-uploaded-images/2024-11/abfed7e0-9e12-11ef-bb97-0882bfcc2cef",
-  //     link: "https://finance.yahoo.com/news/whats-next-for-nuclear-stocks-after-regulatory-pushback-160027265.html"
-  //   },
-  //   {
-  //     headline: "Cryptocurrency market experiences high volatility",
-  //     link: "https://www.bloomberg.com/news/articles/2024-10-30/cryptocurrency-market-experiences-high-volatility",
-  //   },
-  // ];
-
   return (
     <Layout>
       <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
