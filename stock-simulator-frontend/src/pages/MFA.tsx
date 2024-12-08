@@ -37,9 +37,9 @@ const Mfa: React.FC = () => {
 
         // Save tokens to localStorage
         const tokens = response.tokens; // Access the tokens from the response
-        localStorage.setItem("accessToken", tokens.AccessToken);
-        localStorage.setItem("idToken", tokens.IdToken);
-        localStorage.setItem("refreshToken", tokens.RefreshToken);
+        sessionStorage.setItem("accessToken", tokens.AccessToken); // this lasts for 1 hour
+        sessionStorage.setItem("idToken", tokens.IdToken);  // this lasts for 1 hour
+        localStorage.setItem("refreshToken", tokens.RefreshToken); // this lasts for 30 days
 
         toast.success("Login successful!");
         navigate("/dashboard");
