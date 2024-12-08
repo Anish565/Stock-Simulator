@@ -137,7 +137,7 @@ export const fetchSessions = async (userId: string, inProgress: boolean) => {
     console.log("Fetching sessions API Call:", { userId, inProgress });
     const response = await axios.get(`${apiEndpoint}/session?userId=${userId}&inProgress=${inProgress}`);
 
-    console.log("Fetch sessionAPI Response:", response.data);
+    console.log("Fetch sessionAPI Response:", response.data.sessions);
     
     // The response.data already contains the parsed object with sessions array
     const { sessions } = response.data;
@@ -146,12 +146,12 @@ export const fetchSessions = async (userId: string, inProgress: boolean) => {
     
     // Transform the DynamoDB format to a simpler object structure
     return sessions.map((session: any) => ({
-      id: session.sessionId.S,
-      name: session.name.S,
-      startAmount: Number(session.startAmount.N),
-      targetAmount: Number(session.targetAmount.N),
-      duration: session.duration.S,
-      inProgress: session.inProgress.BOOL
+      id: session.sessionId,
+      name: session.name,
+      startAmount: Number(session.startAmount),
+      targetAmount: Number(session.targetAmount),
+      duration: session.duration,
+      inProgress: session.inProgress
     }));
   } catch (error) {
     console.error("Error fetching sessions:", error);
@@ -167,6 +167,34 @@ export const deleteSession = async (sessionId: string) => {
     return response.data;
   } catch (error) {
     console.error("Error deleting session:", error);
+    throw error;
+  }
+};
+
+export const fetchSessionOrders = async (sessionId: string) => {
+  try {
+    console.log("Fetching session orders API Call:", { sessionId });
+    const response = await axios.get(
+      `${apiEndpoint}/session/get/info?sessionId=${sessionId}&sortKey=orders`
+    );
+    console.log("Get orders API Response:", response.data);
+    return response.data.data.orders;
+  } catch (error) {
+    console.error("Error fetching session orders:", error);
+    throw error;
+  }
+};
+
+export const fetchSessionPortfolio = async (sessionId: string) => {
+  try {
+    console.log("Fetching session portfolio API Call:",  sessionId );
+    const response = await axios.get(
+      `${apiEndpoint}/session/get/info?sessionId=${sessionId}&sortKey=portfolio`
+    );
+    console.log("Get portfolio API Response:", response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching session portfolio:", error);
     throw error;
   }
 };
