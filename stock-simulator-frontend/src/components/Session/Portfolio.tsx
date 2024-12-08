@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { fetchSessionPortfolio } from '../../utils/apiService';
+import { useParams } from 'react-router-dom';
 
 interface Stock {
   symbol: string;
   quantity: number;
-  buyPrice: number;
-  currentPrice: number;
+  price: number;
+  currentPrice?: number;
+}
+
+interface PortfolioData {
+  portfolio: Stock[];
+  walletBalance: number;
+  totalStockValue: number;
 }
 
 interface PortfolioProps {
-  walletBalance: number;
-  totalInvested: number;
-  stocks: Stock[];
+  sessionId: string;
 }
 
 const formatMoney = (amount: number): string => {
@@ -24,6 +30,10 @@ interface SellModalProps {
   onClose: () => void;
   onSell: (symbol: string, quantity: number) => void;
 }
+
+const handleSell = (symbol: string, quantity: number) => {
+  console.log(`Selling ${quantity} shares of ${symbol}`);
+};
 
 // Add SellModal component
 const SellModal: React.FC<SellModalProps> = ({ stock, isOpen, onClose, onSell }) => {
@@ -44,7 +54,7 @@ const SellModal: React.FC<SellModalProps> = ({ stock, isOpen, onClose, onSell })
         <h3 className="text-lg font-semibold mb-4">Sell {stock.symbol}</h3>
         <div className="mb-4">
           <p className="text-sm text-gray-600 mb-2">Available: {stock.quantity} shares</p>
-          <p className="text-sm text-gray-600 mb-2">Current Price: {formatMoney(stock.currentPrice)}</p>
+          <p className="text-sm text-gray-600 mb-2">Current Price: {formatMoney(stock.price)}</p>
           <input
             type="number"
             min="1"
@@ -76,58 +86,48 @@ const SellModal: React.FC<SellModalProps> = ({ stock, isOpen, onClose, onSell })
 };
 
 const Portfolio: React.FC<PortfolioProps> = () => {
-  // Add state for sell modal
+  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
+  const { id: sessionId } = useParams<{ id: string }>();
 
-  // Add sell handler
-  const handleSell = (symbol: string, quantity: number) => {
-    // TODO: Implement sell logic here
-    console.log(`Selling ${quantity} shares of ${symbol}`);
-  };
+  useEffect(() => {
+    const loadPortfolio = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchSessionPortfolio(sessionId);
+        setPortfolioData(data);
+      } catch (err) {
+        setError('Failed to load portfolio data');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Sample stock data
-  const stocks: Stock[] = [
-    {
-      symbol: "AAPL",
-      quantity: 10,
-      buyPrice: 175.50,
-      currentPrice: 188.75
-    },
-    {
-      symbol: "GOOGL",
-      quantity: 5,
-      buyPrice: 2750.00,
-      currentPrice: 2830.25
-    },
-    {
-      symbol: "MSFT",
-      quantity: 15,
-      buyPrice: 310.25,
-      currentPrice: 337.50
-    },
-    {
-      symbol: "AMZN",
-      quantity: 8,
-      buyPrice: 135.75,
-      currentPrice: 142.80
-    }
-  ];
+    loadPortfolio();
+  }, [sessionId]);
 
-  // Calculate total invested amount
-  const totalInvested = stocks.reduce((total, stock) => 
-    total + (stock.quantity * stock.buyPrice), 0);
+  if (loading) {
+    return <div className="text-center p-4">Loading portfolio data...</div>;
+  }
 
-  // Sample wallet balance
-  const walletBalance = 10000;
+  if (error || !portfolioData) {
+    return <div className="text-center text-red-500 p-4">{error || 'Failed to load portfolio'}</div>;
+  }
 
-  // Calculate total portfolio value based on current prices
-  const portfolioValue = stocks.reduce((total, stock) => 
-    total + (stock.quantity * stock.currentPrice), 0);
-  
-  // Calculate total profit/loss
+  // Calculate total invested amount based on current holdings
+  const totalInvested = portfolioData.portfolio.reduce((total, stock) => 
+    total + (stock.quantity * stock.price), 0);
+
+  // For now, using purchase price as current price since API doesn't provide current prices
+  const portfolioValue = totalInvested; // This should be updated when current prices are available
+
+  // Calculate total profit/loss (will be 0 until we have current prices)
   const totalProfitLoss = portfolioValue - totalInvested;
-  const profitLossPercent = (totalProfitLoss / totalInvested) * 100;
+  const profitLossPercent = totalInvested > 0 ? (totalProfitLoss / totalInvested) * 100 : 0;
 
   return (
     <div className="p-6">
@@ -135,7 +135,7 @@ const Portfolio: React.FC<PortfolioProps> = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-gradient-to-br from-gray-800 to-gray-600 rounded-lg shadow-md p-6">
           <h3 className="text-gray-200 text-sm font-medium mb-2">Wallet Balance</h3>
-          <p className="text-2xl font-bold">{formatMoney(walletBalance)}</p>
+          <p className="text-2xl font-bold">{formatMoney(portfolioData.walletBalance)}</p>
         </div>
         <div className="bg-gradient-to-br from-gray-800 to-gray-600 rounded-lg shadow-md p-6">
           <h3 className="text-gray-200 text-sm font-medium mb-2">Total Invested</h3>
@@ -169,24 +169,18 @@ const Portfolio: React.FC<PortfolioProps> = () => {
               </tr>
             </thead>
             <tbody>
-              {stocks.map((stock) => {
-                const value = stock.quantity * stock.currentPrice;
-                const profitLoss = value - (stock.quantity * stock.buyPrice);
-                const plPercent = (profitLoss / (stock.quantity * stock.buyPrice)) * 100;
-
+              {portfolioData.portfolio.map((stock) => {
+                const value = stock.quantity * stock.price;
+                // Profit/loss calculation will be added when we have current prices
+                
                 return (
                   <tr key={stock.symbol} className="border-b border-gray-100">
                     <td className="py-3 px-4 font-medium">{stock.symbol}</td>
                     <td className="py-3 px-4">{stock.quantity}</td>
-                    <td className="py-3 px-4">{formatMoney(stock.buyPrice)}</td>
-                    <td className="py-3 px-4">{formatMoney(stock.currentPrice)}</td>
+                    <td className="py-3 px-4">{formatMoney(stock.price)}</td>
+                    <td className="py-3 px-4">{formatMoney(stock.price)}</td>
                     <td className="py-3 px-4">{formatMoney(value)}</td>
-                    <td className={`py-3 px-4 font-semibold ${profitLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatMoney(profitLoss)}
-                      <span className="text-sm ml-1 opacity-75">
-                        ({plPercent.toFixed(2)}%)
-                      </span>
-                    </td>
+                    <td className="py-3 px-4">N/A</td>
                     <td className="py-3 px-4">
                       <button
                         onClick={() => {
@@ -206,7 +200,7 @@ const Portfolio: React.FC<PortfolioProps> = () => {
         </div>
       </div>
 
-      {/* Add sell modal */}
+      {/* Sell Modal */}
       {selectedStock && (
         <SellModal
           stock={selectedStock}
