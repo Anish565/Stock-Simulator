@@ -198,3 +198,17 @@ export const fetchSessionPortfolio = async (sessionId: string) => {
     throw error;
   }
 };
+
+export const fetchSessionWatchlist = async (sessionId: string) => {
+  try {
+    console.log("Fetching session watchlist API Call:", sessionId);
+    const response = await axios.get(
+      `${apiEndpoint}/session/get/info?sessionId=${sessionId}&sortKey=watchlist`
+    );
+    console.log("Get watchlist API Response:", response.data);
+    return response.data.data.watchlist;
+  } catch (error) {
+    console.error("Error fetching session watchlist:", error);
+    throw error;
+  }
+};
