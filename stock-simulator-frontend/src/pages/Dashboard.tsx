@@ -39,6 +39,7 @@ const Dashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newsItems, setNewsItems] = useState<News[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
+  const accessToken = sessionStorage.getItem("accessToken") || "";
   const [selectedStock, setSelectedStock] = useState<SelectedStock>({
     symbol: "AAPL",
     name: "Apple Inc.",
@@ -227,8 +228,9 @@ const Dashboard: React.FC = () => {
           <div className="flex space-x-6 h-64">
             {/* Session Section */}
             <div className="flex-1 bg-gray-500/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow-lg h-full p-4 relative overflow-y-auto">
-              {isLoading ? (
-                <div className="flex items-center justify-center h-full">
+              {accessToken ? (  
+                isLoading ? (
+                  <div className="flex items-center justify-center h-full">
                   <div className="text-gray-300">Loading sessions...</div>
                 </div>
               ) : sessions.length === 0 ? (
@@ -260,6 +262,13 @@ const Dashboard: React.FC = () => {
                       sessionId={session.id}
                     />
                   ))}
+                </div>
+              )
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full">
+                  <p className="text-gray-300">Please  <a href="/login" className="text-blue-500 hover:text-blue-600">Login</a> to view sessions</p>
+                  {/* make the login in the p a link to the login page */}
+                 
                 </div>
               )}
             </div>
