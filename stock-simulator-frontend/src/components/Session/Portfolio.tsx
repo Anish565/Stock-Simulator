@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchSessionPortfolio } from '../../utils/apiService';
+import { fetchSessionPortfolio, sellStock } from '../../utils/apiService';
 import { useParams } from 'react-router-dom';
 
 interface Stock {
@@ -24,20 +24,28 @@ interface SellModalProps {
   stock: Stock;
   isOpen: boolean;
   onClose: () => void;
-  onSell: (symbol: string, quantity: number) => void;
 }
 
-const handleSell = (symbol: string, quantity: number) => {
-  console.log(`Selling ${quantity} shares of ${symbol}`);
-};
+// const handleSell = (symbol: string, quantity: number) => {
+//   console.log(`Selling ${quantity} shares of ${symbol}`);
+// };
 
 // Add SellModal component
-const SellModal: React.FC<SellModalProps> = ({ stock, isOpen, onClose, onSell }) => {
-  const [quantity, setQuantity] = useState<number>(0);
+const SellModal: React.FC<SellModalProps> = ({ stock, isOpen, onClose }) => {
+  const [quantity, setQuantity] = useState<number>(1);
+  const { id: sessionId } = useParams<{ id: string }>();
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value);
+    // Ensure the value stays within valid range
+    if (value >= 1 && value <= stock.quantity) {
+      setQuantity(value);
+    }
+  };
 
   const handleSell = () => {
     if (quantity > 0 && quantity <= stock.quantity) {
-      onSell(stock.symbol, quantity);
+      sellStock(sessionId, stock.symbol, quantity, stock.price);
       onClose();
     }
   };
@@ -51,16 +59,33 @@ const SellModal: React.FC<SellModalProps> = ({ stock, isOpen, onClose, onSell })
         <div className="mb-4">
           <p className="text-sm text-gray-600 mb-2">Available: {stock.quantity} shares</p>
           <p className="text-sm text-gray-600 mb-2">Current Price: {formatMoney(stock.price)}</p>
-          <input
-            type="number"
-            min="1"
-            max={stock.quantity}
-            value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-            className="w-full p-2 border rounded"
-            placeholder="Enter quantity to sell"
-          />
+          
+          {/* Updated quantity selector */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-4">
+              <input
+                type="range"
+                min="1"
+                max={stock.quantity}
+                value={quantity}
+                onChange={handleQuantityChange}
+                className="w-full"
+              />
+              <input
+                type="number"
+                min="1"
+                max={stock.quantity}
+                value={quantity}
+                onChange={handleQuantityChange}
+                className="w-20 p-2 border rounded text-center"
+              />
+            </div>
+            <p className="text-sm text-gray-600">
+              Total Value: {formatMoney(quantity * stock.price)}
+            </p>
+          </div>
         </div>
+        
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
@@ -71,7 +96,7 @@ const SellModal: React.FC<SellModalProps> = ({ stock, isOpen, onClose, onSell })
           <button
             onClick={handleSell}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            disabled={quantity <= 0 || quantity > stock.quantity}
+            disabled={quantity < 1 || quantity > stock.quantity}
           >
             Sell
           </button>
@@ -93,9 +118,6 @@ const Portfolio: React.FC = () => {
     const loadPortfolio = async () => {
       try {
         setLoading(true);
-        if (!sessionId) {
-          throw new Error('Session ID is required');
-        }
         const data = await fetchSessionPortfolio(sessionId);
         setPortfolioData(data);
       } catch (err) {
@@ -208,7 +230,6 @@ const Portfolio: React.FC = () => {
             setIsSellModalOpen(false);
             setSelectedStock(null);
           }}
-          onSell={handleSell}
         />
       )}
     </div>

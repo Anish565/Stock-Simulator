@@ -111,7 +111,8 @@ const SessionInfo: React.FC = () => {
   }
 
   const profitLoss = stockInfo.currentWorth - stockInfo.totalStockValue;
-  const profitLossPercentage = ((profitLoss) / stockInfo.totalStockValue * 100).toFixed(2);
+  const profitLossPercentage = stockInfo.totalStockValue == 0 ? 0 :((profitLoss) / stockInfo.totalStockValue * 100).toFixed(2);
+
 
   return (
     <StyledCard elevation={0}>
