@@ -1,16 +1,12 @@
-import React from 'react';
-import { Card, Typography, Divider } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Card, Typography, Divider, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { fetchSessionInfo } from '../../utils/apiService';
+import { useParams } from 'react-router-dom';
 
-interface SessionInfoProps {
-  sessionId: string;
-  sessionName: string;
-  startAmount: number;
-  investedAmount: number;
-  targetAmount: number;
-  duration: string; // e.g. "30 days" or "2024-01-01 to 2024-12-31"
-  currentValue: number;
-}
+
+
+
 
 const StyledCard = styled(Card)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -47,18 +43,76 @@ const Value = styled(Typography)(({ theme }) => ({
   fontSize: '1rem',
 }));
 
-const SessionInfo: React.FC<SessionInfoProps> = ({
-  sessionId,
-  sessionName,
-  startAmount,
-  investedAmount,
-  targetAmount,
-  duration,
-  currentValue,
-}) => {
-  const profitLoss = currentValue - startAmount;
-  const profitLossPercentage = ((profitLoss / startAmount) * 100).toFixed(2);
-  
+interface StockInfo {
+  totalStockValue: number;
+  currentWorth: number;
+  walletBalance: number;
+}
+
+interface SessionInfo {
+  startAmount: number;
+  sessionId: string;
+  sortKey: string;
+  targetAmount: number;
+  userId: string;
+  inProgress: boolean;
+  duration: string;
+  name: string;
+}
+
+const SessionInfo: React.FC = () => {
+  const [stockInfo, setStockInfo] = useState<StockInfo | null>(null);
+  const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { id: sessionId } = useParams<{ id: string }>();
+
+  useEffect(() => {
+    const loadSessionInfo = async () => {
+      if (!sessionId) {
+        setError('No session ID provided');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await fetchSessionInfo(sessionId);
+        console.log("Response:", response);
+        setStockInfo(response.stockInfo);
+        setSessionInfo(response.sessionInfo);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred while loading session info');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSessionInfo();
+  }, [sessionId]);
+
+  if (isLoading) {
+    return (
+      <StyledCard elevation={0} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+        <CircularProgress />
+      </StyledCard>
+    );
+  }
+
+  if (error || !stockInfo || !sessionInfo) {
+    return (
+      <StyledCard elevation={0}>
+        <Typography color="error" align="center">
+          {error || 'Unable to load session information'}
+        </Typography>
+      </StyledCard>
+    );
+  }
+
+  const profitLoss = stockInfo.currentWorth - stockInfo.totalStockValue;
+  const profitLossPercentage = ((profitLoss) / stockInfo.totalStockValue * 100).toFixed(2);
+
   return (
     <StyledCard elevation={0}>
       <Typography 
@@ -70,7 +124,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
           mb: 3 
         }}
       >
-        {sessionName}
+        {sessionInfo.name}
       </Typography>
       <Divider sx={{ my: 3 }} />
       
@@ -81,29 +135,34 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
       
       <InfoRow>
         <Label>Starting Amount</Label>
-        <Value>${startAmount.toLocaleString()}</Value>
+        <Value>${sessionInfo.startAmount.toLocaleString()}</Value>
       </InfoRow>
       
       <InfoRow>
-        <Label>Amount Invested</Label>
-        <Value>${investedAmount.toLocaleString()}</Value>
+        <Label>Wallet Balance</Label>
+        <Value>${stockInfo.walletBalance.toLocaleString()}</Value>
+      </InfoRow>
+      
+      <InfoRow>
+        <Label>Stock Value</Label>
+        <Value>${stockInfo.totalStockValue.toLocaleString()}</Value>
       </InfoRow>
       
       <InfoRow>
         <Label>Target Amount</Label>
-        <Value>${targetAmount.toLocaleString()}</Value>
+            <Value>${sessionInfo.targetAmount.toLocaleString()}</Value>
       </InfoRow>
       
       <InfoRow>
         <Label>Duration</Label>
-        <Value>{duration}</Value>
+        <Value>{sessionInfo.duration}</Value>
       </InfoRow>
       
       <Divider sx={{ my: 3 }} />
       
       <InfoRow>
         <Label>Current Value</Label>
-        <Value sx={{ fontSize: '1.1rem' }}>${currentValue.toLocaleString()}</Value>
+          <Value sx={{ fontSize: '1.1rem' }}>${stockInfo.currentWorth.toLocaleString()}</Value>
       </InfoRow>
       
       <InfoRow>

@@ -212,3 +212,43 @@ export const fetchSessionWatchlist = async (sessionId: string) => {
     throw error;
   }
 };
+
+export const fetchSessionInfo = async (sessionId: string) => {
+  try {
+    console.log("Fetching session info API Call:", sessionId);
+    const response = await axios.get(`${apiEndpoint}/session/get/info?sessionId=${sessionId}`);
+    
+    if (!response.data || !response.data.data) {
+      throw new Error('Invalid response format from API');
+    }
+
+    // Ensure we have the required data
+    const sessionInfo = response.data.data[0];
+    const stockInfo = response.data.data[2];
+
+    if (!stockInfo || !sessionInfo) {
+      throw new Error('Missing required session or stock information');
+    }
+
+    return {
+      stockInfo: {
+        totalStockValue: Number(stockInfo.totalStockValue || 0),
+        currentWorth: Number(stockInfo.currentWorth || 0),
+        walletBalance: Number(stockInfo.walletBalance || 0)
+      },
+      sessionInfo: {
+        startAmount: Number(sessionInfo.startAmount),
+        sessionId: sessionInfo.sessionId,
+        sortKey: sessionInfo.sortKey,
+        targetAmount: Number(sessionInfo.targetAmount),
+        userId: sessionInfo.userId,
+        inProgress: sessionInfo.inProgress,
+        duration: sessionInfo.duration,
+        name: sessionInfo.name
+      }
+    };
+  } catch (error) {
+    console.error("Error fetching session info:", error);
+    throw error;
+  }
+};
