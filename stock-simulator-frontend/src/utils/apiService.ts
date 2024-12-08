@@ -262,3 +262,21 @@ export const sellStock = async (sessionId: string, symbol: string, quantity: num
     throw error;
   }
 };
+
+export const buyStock = async (sessionId: string, symbol: string, quantity: number, price: number) => {
+  try {
+    console.log("Buying stock API Call:", { sessionId, symbol, quantity, price });
+    const response = await axios.post(`${apiEndpoint}/trade/buy`, {
+      sessionId,
+      symbol,
+      quantity,
+      price,
+      current_market_vol: 1034839 // Dummy value as requested
+    });
+    console.log("Buy stock API Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error buying stock:", error);
+    throw error;
+  }
+};

@@ -3,6 +3,7 @@ import StockItem from "../StockItem";
 import NewsItem from "../NewsItem";
 import { fetchNewsDataFromAPI, fetchSessions, fetchStockMetaData } from "../../utils/apiService";
 import StockVisualization from "../StockVisualization";
+import { toast } from "react-toastify";
 
 interface SelectedStock {
   symbol: string;
@@ -81,6 +82,14 @@ const SessionDashboard: React.FC = () => {
   useEffect(() => {
     fetchNewsData();
   }, []);
+
+  // const handleBuyStock = async (symbol: string, price: number) => {
+  //   // buyStock = async (sessionId: string, symbol: string, quantity: number, price: number)
+  //   console.log(`Buying stock ${symbol} at $${price}`);
+  //   // const response = await buyStock(sessions[0]?.id, symbol, 1, price);
+  //   // console.log(response);
+  //   // toast.success(`Successfully purchased 1 share of ${symbol}!`);
+  // };
 
   const stocks = [
     { symbol: "AAPL", name: "Apple Inc.", price: 243.27, changePercentage: 3.68 },
@@ -163,6 +172,7 @@ const SessionDashboard: React.FC = () => {
                     key={stock.symbol}
                     {...stock}
                     onSelect={() => handleStockSelect(stock.symbol, stock.name)}
+                    showBuyButton={true}
                   />
                 ))}
               </div>

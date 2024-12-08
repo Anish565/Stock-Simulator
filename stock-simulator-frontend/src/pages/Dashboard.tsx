@@ -212,6 +212,7 @@ const Dashboard: React.FC = () => {
                     key={stock.symbol}
                     {...stock}
                     onSelect={() => handleStockSelect(stock.symbol, stock.name)}
+                    
                   />
                 ))}
               </div>
