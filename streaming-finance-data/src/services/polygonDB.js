@@ -68,8 +68,11 @@ async function polygonDynamoService(data_tickers) {
                   TableName: "Stock_Sim_News_Data", 
                   Item: params,
                 });
-                console.log(metaCommand);
+                //logger.debug(`polygonDynamoService: metaCommand: ${metaCommand}`);
+                console.log(`polygonDynamoService: metaCommand: ${metaCommand}`);
                 const reponse = await dynamodb.send(metaCommand);
+                
+                //logger.debug(`polygonDynamoService: reponse: ${reponse}`);
                 console.log(reponse);
                 rank++;
             } catch (error) {
