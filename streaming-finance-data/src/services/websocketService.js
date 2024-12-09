@@ -78,9 +78,10 @@ async function streamFinanceData(io) {
                     const decodedBuffer = Buffer.from(event.data, 'base64');
                     
                     const message = YatickerMessage.decode(decodedBuffer);
-
+                    logger.info(message);
                     const symbol = message.id;
                     const price = message.price;
+                    const shortName = message.shortName;
                     const timeStamp = message.time;
                     const timeStampUTC = ConvertToUTC(timeStamp);
                     const minutes = (new Date(timeStampUTC).getUTCMinutes()).toString();
@@ -164,11 +165,12 @@ async function streamFinanceData(io) {
                     logger.info(`Full decoded message: ${JSON.stringify(message, (key, value) =>
                         typeof value === 'bigint' ? value.toString() : value // Convert BigInt to string for JSON compatibility
                     )}`);
-                    logger.info(`streamFinanceData: Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStamp}, Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}, ChangePercent: ${changePercent}, openPrice: ${openPrice}, previousClose: ${previousClose}`);
+                    logger.info(`streamFinanceData: Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStamp}, Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}, ChangePercent: ${changePercent}, openPrice: ${openPrice}, previousClose: ${previousClose} shortName: ${shortName}`);
                     
                     // Broadcast to frontend
                     io.emit('stock-update', {
                         symbol: symbol,
+                        shortName: shortName,
                         price: price,
                         dayHigh: dayHigh,
                         dayLow: dayLow,

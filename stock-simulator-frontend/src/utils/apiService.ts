@@ -326,7 +326,7 @@ export const sellStock = async (sessionId: string, symbol: string, quantity: num
   }
 };
 
-export const buyStock = async (sessionId: string, symbol: string, quantity: number, price: number) => {
+export const buyStock = async (sessionId: string, symbol: string, quantity: number, price: number, volume: number) => {
   try {
     const userToken = sessionStorage.getItem("accessToken");
     console.log("Buying stock API Call:", { sessionId, symbol, quantity, price });
