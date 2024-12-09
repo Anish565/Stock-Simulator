@@ -335,7 +335,7 @@ export const buyStock = async (sessionId: string, symbol: string, quantity: numb
       symbol,
       quantity,
       price,
-      current_market_vol: volume
+      current_market_vol: 1034839 // Dummy value as requested
     },
     {
       headers: {
