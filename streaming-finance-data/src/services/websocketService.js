@@ -76,7 +76,7 @@ async function streamFinanceData(io) {
                     const minutes = (new Date(timeStampUTC)).getUTCMinutes();
                     const dayHigh = message.dayHigh;
                     const dayLow = message.dayLow;
-                    const dayVolume = message.dayVolume;
+                    const dayVolume = message.dayVolume.low;
                     const changePercent = message.changePercent;
                     const openPrice = message.openPrice;
                     const previousClose = message.previousClose;
@@ -142,11 +142,11 @@ async function streamFinanceData(io) {
                           TableName: "websocket_data", 
                           Item: params,
                         });
-                        console.log(metaCommand);
+                        // console.log(metaCommand);
                         logger.info(metaCommand);
-                        const reponse = await dynamodb.send(metaCommand);
-                        console.log(reponse);
-                        logger.info(reponse);
+                        // const response = await dynamodb.send(metaCommand);
+                        // console.log(response);
+                        // logger.info(response);
                     } catch (error) {
                         console.error("Error inserting data into DynamoDB:", error);
                     }

@@ -17,7 +17,7 @@ import { decodeUserToken } from "../utils/jwtDecode";
 interface SelectedStock {
   symbol: string;
   name: string;
-  metaData: any;
+  metaData: unknown;
 }
 
 interface News {
@@ -196,8 +196,6 @@ const Dashboard: React.FC = () => {
     { symbol: "RACE", name: "Ferrari N.V.", price: 443.22, changePercentage: 1.33 },
   ];
 
-  // const user = decodeUserToken();
-  // console.log("User:", user);
 
   return (
     <Layout>
@@ -268,7 +266,6 @@ const Dashboard: React.FC = () => {
                 <div className="flex flex-col items-center justify-center h-full">
                   <p className="text-gray-300">Please  <a href="/login" className="text-blue-500 hover:text-blue-600">Login</a> to view sessions</p>
                   {/* make the login in the p a link to the login page */}
-                 
                 </div>
               )}
             </div>

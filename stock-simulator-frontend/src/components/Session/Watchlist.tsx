@@ -72,11 +72,11 @@ const Watchlist: React.FC = () => {
     console.log('Searching for:', searchTerm);
   };
 
-  const handleAddStock = (stock: Stock) => {
-    if (!watchlist.find(s => s.symbol === stock.symbol)) {
-      setWatchlist([...watchlist, stock]);
-    }
-  };
+  // const handleAddStock = (stock: Stock) => {
+  //   if (!watchlist.find(s => s.symbol === stock.symbol)) {
+  //     setWatchlist([...watchlist, stock]);
+  //   }
+  // };
 
   const handleRemoveStock = (symbol: string) => {
     setWatchlist(watchlist.filter(stock => stock.symbol !== symbol));

@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Header from "../components/Header";
 import { loginUser, fetchQRCode } from "../utils/apiService";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import useWebSocket from "../utils/websocketService";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ const Login: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  // useWebSocket();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
