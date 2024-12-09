@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Typography, Divider, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { fetchSessionInfo } from '../../utils/apiService';
+import { fetchSessionInfo, fetchSessionPortfolio } from '../../utils/apiService';
 import { useParams } from 'react-router-dom';
+import useWebSocket from '../../utils/websocketService';
+import { MdArrowDropUp, MdArrowDropDown } from "react-icons/md";
 
 
 
@@ -60,12 +62,48 @@ interface SessionInfo {
   name: string;
 }
 
+interface PortfolioData {
+  portfolio: Stock[];
+  walletBalance: number;
+  pendingAmount: number;
+  totalStockValue: number;
+}
+
 const SessionInfo: React.FC = () => {
   const [stockInfo, setStockInfo] = useState<StockInfo | null>(null);
   const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
+  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { id: sessionId } = useParams<{ id: string }>();
+  const stocks = useWebSocket();
+
+  useEffect(() => {
+    const loadPortfolio = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchSessionPortfolio(sessionId || '');
+        setPortfolioData(data);
+      } catch (err) {
+        setError('Failed to load portfolio data');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPortfolio();
+  }, [sessionId]);
+
+  const currentValue = portfolioData?.portfolio.reduce((total, stock) => 
+    total + (stock.quantity * stocks[stock.symbol]?.price || 0), 0);
+
+  const totalStockValue = portfolioData?.portfolio.reduce((total, stock) => 
+    total + (stock.quantity * stock.price || 0), 0);
+
+  const profitLoss = currentValue - totalStockValue;
+  const profitLossPercentage = totalStockValue == 0 ? 0 :((profitLoss) / totalStockValue * 100).toFixed(2);
 
   useEffect(() => {
     const loadSessionInfo = async () => {
@@ -110,8 +148,6 @@ const SessionInfo: React.FC = () => {
     );
   }
 
-  const profitLoss = stockInfo.currentWorth - stockInfo.totalStockValue;
-  const profitLossPercentage = stockInfo.totalStockValue == 0 ? 0 :((profitLoss) / stockInfo.totalStockValue * 100).toFixed(2);
 
 
   return (
@@ -146,7 +182,7 @@ const SessionInfo: React.FC = () => {
       
       <InfoRow>
         <Label>Stock Value</Label>
-        <Value>${stockInfo.totalStockValue.toLocaleString()}</Value>
+        <Value>${(currentValue || 0).toLocaleString()}</Value>
       </InfoRow>
       
       <InfoRow>
@@ -163,7 +199,7 @@ const SessionInfo: React.FC = () => {
       
       <InfoRow>
         <Label>Current Value</Label>
-          <Value sx={{ fontSize: '1.1rem' }}>${stockInfo.currentWorth.toLocaleString()}</Value>
+          <Value sx={{ fontSize: '1.1rem' }}>${(currentValue + stockInfo.walletBalance + portfolioData?.pendingAmount).toFixed(2).toLocaleString()}</Value>
       </InfoRow>
       
       <InfoRow>
@@ -171,10 +207,19 @@ const SessionInfo: React.FC = () => {
         <Value 
           sx={{ 
             color: profitLoss >= 0 ? 'success.main' : 'error.main',
-            fontSize: '1.1rem'
+            fontSize: '1.1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
           }}
         >
-          ${Math.abs(profitLoss).toLocaleString()} ({profitLoss >= 0 ? '+' : '-'}{profitLossPercentage}%)
+          ${Math.abs(profitLoss).toLocaleString()} 
+          {profitLoss >= 0 ? (
+            <MdArrowDropUp size={20} color="inherit" />
+          ) : (
+            <MdArrowDropDown size={20} color="inherit" />
+          )}
+          ({profitLoss >= 0 ? '+' : ''}{profitLossPercentage}%)
         </Value>
       </InfoRow>
     </StyledCard>

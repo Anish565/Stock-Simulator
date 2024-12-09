@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { FaSearch, FaTrash } from 'react-icons/fa';
 import { fetchSessionWatchlist, fetchStockMetaData } from '../../utils/apiService';
 import { useParams } from 'react-router-dom';
+import useWebSocket from '../../utils/websocketService';
 
 interface Stock {
   symbol: string;
   name: string;
   price: number;
-  change: number;
   changePercent: number;
 }
 
@@ -22,44 +22,43 @@ const Watchlist: React.FC = () => {
   const [watchlist, setWatchlist] = useState<Stock[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const stocks = useWebSocket();
+  console.log('stocks', stocks);
   // Fetch watchlist data on component mount
+  const [symbols, setSymbols] = useState<string[]>([]);
+
   useEffect(() => {
     const loadWatchlist = async () => {
+      setLoading(true);
       console.log("Fetching watchlist API Call:", sessionId);
       if (!sessionId) return;
-      
-      try {
-        setLoading(true);
-        const symbols = await fetchSessionWatchlist(sessionId);
-        
-        // // Fetch stock details for each symbol
-        const stockDetails = await Promise.all(
-          symbols.map(async (symbol: string) => {
-            const data = await fetchStockMetaData(symbol);
-            return {
-              symbol,
-              name: data.data.name || symbol,
-              price: data.data.price || 0,
-              change: data.data.change || 0,
-              changePercent: data.data.changePercent || 0
-            };
-          })
-        );
-
-        // const stockDetails = symbols;
-        
-        setWatchlist(stockDetails);
-      } catch (err) {
-        setError('Failed to load watchlist');
-        console.error('Error loading watchlist:', err);
-      } finally {
-        setLoading(false);
-      }
+      const watchlistSymbols = await fetchSessionWatchlist(sessionId);
+      setLoading(false);
+      setSymbols(watchlistSymbols);
+      setLoading(false);
     };
-
     loadWatchlist();
   }, [sessionId]);
+     
+
+  useEffect(() => {
+    const loadStockDetails = async () => {
+      const stockDetails = await Promise.all(
+        symbols.map(async (symbol: string) => {
+          const data = await fetchStockMetaData(symbol);
+          return {
+            symbol,
+            name: data.data.name || symbol,
+            price: stocks[symbol]?.price || 0,
+            changePercent: stocks[symbol]?.changePercent || 0
+          };
+        })
+      );
+      setWatchlist(stockDetails);
+    };
+    
+    loadStockDetails();
+  }, [symbols, stocks]);
 
   const [buyModal, setBuyModal] = useState<BuyModalState>({
     isOpen: false,
@@ -166,9 +165,9 @@ const Watchlist: React.FC = () => {
                     ${stock.price.toFixed(2)}
                   </td>
                   <td className={`px-6 py-4 whitespace-nowrap text-right ${
-                    stock.change >= 0 ? 'text-green-600' : 'text-red-600'
+                    stock.changePercent >= 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    {stock.change >= 0 ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)
+                    {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button
