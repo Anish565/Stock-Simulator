@@ -29,11 +29,13 @@ const Watchlist: React.FC = () => {
 
   useEffect(() => {
     const loadWatchlist = async () => {
+      setLoading(true);
       console.log("Fetching watchlist API Call:", sessionId);
       if (!sessionId) return;
       const watchlistSymbols = await fetchSessionWatchlist(sessionId);
       setLoading(false);
       setSymbols(watchlistSymbols);
+      setLoading(false);
     };
     loadWatchlist();
   }, [sessionId]);

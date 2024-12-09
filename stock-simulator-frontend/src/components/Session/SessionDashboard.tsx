@@ -162,7 +162,7 @@ const SessionDashboard: React.FC = () => {
     <div className="p-8 space-y-8 bg-gradient-to-br from-gray-900 to-gray-800">
       <div className="flex space-x-6">
         {/* Stock Visualizations */}
-        <div className="flex-1 bg-gray-500/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow-lg h-full">
+        <div className="flex-1 bg-gray-500/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow-lg h-full text-black">
           <StockVisualization selectedStock={selectedStock} />
         </div>
 
