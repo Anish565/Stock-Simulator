@@ -5,6 +5,7 @@ const protobuf = require('protobufjs');
 const path = require('path');
 const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb");
 const AWS = require('aws-sdk');
+const { min } = require('moment');
 
 // Load the protobuf schema
 const protoPath = path.resolve(__dirname, '../config/yaticker.proto');
@@ -23,6 +24,15 @@ protobuf.load(protoPath, (err, root) => {
     YatickerMessage = root.lookupType('yaticker'); // Adjust based on the message type in your proto file
 });
 
+function ConvertToUTC(timestamp) {
+    timestamp = Number(timestamp);
+    if (typeof timestamp !== 'number' || isNaN(timestamp)) {
+        return false;
+    }
+    const timestampInMilliseconds = timestamp > 9999999999 ? timestamp : timestamp * 1000;
+    const date = new Date(timestampInMilliseconds);
+    return date.toUTCString();
+}
 
 async function streamFinanceData(io) {
     
@@ -72,8 +82,8 @@ async function streamFinanceData(io) {
                     const symbol = message.id;
                     const price = message.price;
                     const timeStamp = message.time;
-                    const timeStampUTC = new Date(timeStamp * 1000).toISOString();
-                    const minutes = (new Date(timeStampUTC)).getUTCMinutes();
+                    const timeStampUTC = ConvertToUTC(timeStamp);
+                    const minutes = (new Date(timeStampUTC).getUTCMinutes()).toString();
                     const dayHigh = message.dayHigh;
                     const dayLow = message.dayLow;
                     const dayVolume = message.dayVolume.low;
@@ -85,9 +95,9 @@ async function streamFinanceData(io) {
 
                     // Log the decoded message content
                     logger.info("Decoded message:", message);
-                    logger.info(`Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStampUTC}`);
+                    logger.info(typeof minutes);
+                    logger.info(`Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStamp}, UTC: ${timeStampUTC}, minutes: ${minutes}`);
                     logger.info(`Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}`);
-
                     
                     // Insert into Dynamo
 
@@ -130,23 +140,21 @@ async function streamFinanceData(io) {
                         // Insert the `meta` fields
                         const params = {
                             symbol: {S:symbol},
-                            sortKey: {S:minutes},
-                            price: {N:price},
-                            dayVolume: {N:dayVolume},
-                            timeStamp: {S:timeStampUTC},
-                            changePercent: {N:changePercent},
-                            openPrice: {N:openPrice},
-                            previousClose: {N:previousClose}
+                            sortKey: {S:minutes.toString()},
+                            price: {N:price.toString()},
+                            dayVolume: {N:dayVolume.toString()},
+                            timeStamp: {S:timeStampUTC.toString()},
+                            changePercent: {N:changePercent.toString()},
+                            openPrice: {N:openPrice.toString()},
+                            previousClose: {N:previousClose.toString()}
                         };
                         const metaCommand = new PutItemCommand({
                           TableName: "websocket_data", 
                           Item: params,
                         });
-                        // console.log(metaCommand);
-                        logger.info(metaCommand);
-                        // const response = await dynamodb.send(metaCommand);
-                        // console.log(response);
-                        // logger.info(response);
+                        const response = await dynamodb.send(metaCommand);
+                        console.log(response);
+                        logger.info(response);
                     } catch (error) {
                         console.error("Error inserting data into DynamoDB:", error);
                     }
