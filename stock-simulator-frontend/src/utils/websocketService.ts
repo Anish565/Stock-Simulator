@@ -11,7 +11,7 @@ export default function useWebSocket() {
 
     // Listen for 'stock-update' events
     socket.on("stock-update", (data) => {
-      console.log("Stock Update:", data); // Log the data received from the server
+      // console.log("Stock Update:", data); // Log the data received from the server
 
       if (data && data.symbol) { // Ensure `data` is a valid stock object with a symbol
         setStocks((prevStocks) => ({
@@ -29,6 +29,6 @@ export default function useWebSocket() {
     };
   }, []); // Empty dependency array ensures this runs once on mount
 
-  console.log(stocks); // Log the accumulated stock data for debugging
+  // console.log(stocks); // Log the accumulated stock data for debugging
   return stocks; // Return the accumulated stock data
 }
