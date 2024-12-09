@@ -46,6 +46,18 @@ const SellModal: React.FC<SellModalProps> = ({ stock, isOpen, onClose, stocks })
     }
   };
 
+  const incrementQuantity = () => {
+    if (quantity < stock.quantity) {
+      setQuantity(quantity + 1);
+    }
+  };
+
+  const decrementQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
+  };
+
   const handleSell = () => {
     if (quantity > 0 && quantity <= stock.quantity && sessionId) {
       sellStock(sessionId, stock.symbol, quantity, stocks[stock.symbol]?.price || 0);
@@ -57,31 +69,37 @@ const SellModal: React.FC<SellModalProps> = ({ stock, isOpen, onClose, stocks })
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg shadow-xl">
-        <h3 className="text-lg font-semibold mb-4">Sell {stock.symbol}</h3>
+      <div className="bg-white p-6 rounded-lg shadow-xl w-[40%]">
+        <h3 className="text-lg font-semibold mb-4 text-black">Sell {stock.symbol}</h3>
         <div className="mb-4">
           <p className="text-sm text-gray-600 mb-2">Available: {stock.quantity} shares</p>
           <p className="text-sm text-gray-600 mb-2">Current Price: {formatMoney(stocks[stock.symbol]?.price || 0)}</p>
           
-          {/* Updated quantity selector */}
+          {/* Updated quantity selector with +/- buttons */}
           <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-4">
-              <input
-                type="range"
-                min="1"
-                max={stock.quantity}
-                value={quantity}
-                onChange={handleQuantityChange}
-                className="w-full"
-              />
+            <div className="flex items-center justify-center gap-4">
+              <button
+                onClick={decrementQuantity}
+                className="px-3 py-1 border rounded hover:bg-gray-100 text-black cursor-pointer"
+                disabled={quantity <= 1}
+              >
+                -
+              </button>
               <input
                 type="number"
                 min="1"
                 max={stock.quantity}
                 value={quantity}
                 onChange={handleQuantityChange}
-                className="w-20 p-2 border rounded text-center"
+                className="w-20 p-2 border rounded text-center text-black"
               />
+              <button
+                onClick={incrementQuantity}
+                className="px-3 py-1 border rounded hover:bg-gray-100 text-black cursor-pointer"
+                disabled={quantity >= stock.quantity}
+              >
+                +
+              </button>
             </div>
             <p className="text-sm text-gray-600">
               Total Value: {formatMoney(quantity * stocks[stock.symbol]?.price || 0)}
