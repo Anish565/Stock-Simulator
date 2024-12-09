@@ -7,6 +7,7 @@ interface StockItemProps {
   symbol: string;
   name: string;
   price: number;
+  volume?: number;
   changePercentage: number;
   onSelect: () => void;
   showBuyButton?: boolean;
@@ -95,7 +96,8 @@ const QuantityModal: React.FC<QuantityModalProps> = ({ isOpen, onClose, onConfir
 const StockItem: React.FC<StockItemProps> = ({ 
   symbol, 
   name, 
-  price, 
+  price,
+  volume,
   changePercentage, 
   onSelect, 
   showBuyButton
@@ -110,12 +112,13 @@ const StockItem: React.FC<StockItemProps> = ({
 
   const handleConfirmPurchase = async (quantity: number) => {
     try {
-      console.log(`Buying ${quantity} shares of ${symbol} at $${price}`);
+      console.log(`Buying ${quantity} shares of ${symbol} at $${price} with volume ${volume}`);
       const response = await buyStock(
         sessionId || 'session123', 
         symbol, 
-        quantity, 
-        price
+        quantity as number, 
+        price as number,
+        volume as number
       );
 
       console.log("this is the returned response", response);
@@ -161,7 +164,7 @@ const StockItem: React.FC<StockItemProps> = ({
           className="flex flex-1 cursor-pointer"
         >
           <div className="flex flex-col">
-            <span className="font-semibold text-gray-800">{name}</span>
+            <span className="font-semibold text-gray-800">{symbol}</span>
             <span className="text-gray-600">${price.toFixed(2)}</span>
           </div>
           <span className={`ml-auto text-lg font-bold ${isPositive ? "text-green-500" : "text-red-500"}`}>
