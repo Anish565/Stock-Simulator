@@ -164,13 +164,13 @@ const StockItem: React.FC<StockItemProps> = ({
           className="flex flex-1 cursor-pointer"
         >
           <div className="flex flex-col">
-            <span className="font-semibold text-gray-800">{symbol}</span>
-            <span className="text-gray-600">${price.toFixed(2)}</span>
-          </div>
-          <span className={`ml-auto text-lg font-bold ${isPositive ? "text-green-500" : "text-red-500"}`}>
+            <span className="font-semibold text-gray-800">{symbol}  <span className={`ml-auto text-lg font-bold ${isPositive ? "text-green-500" : "text-red-500"}`}>
             {isPositive ? "+" : ""}
             {changePercentage.toFixed(2)}%
-          </span>
+          </span></span>
+            <span className="text-gray-600">${price.toFixed(2)}</span>
+          </div>
+         
         </div>
         
         {showBuyButton && (
