@@ -12,6 +12,7 @@ interface SelectedStock {
   metaData: any;
 }
 
+
 interface News {
   title: string;
   article_url: string;
@@ -37,7 +38,7 @@ const SessionDashboard: React.FC = () => {
   });
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  
   useEffect(() => {
     const loadSessions = async () => {
       try {
@@ -83,7 +84,6 @@ const SessionDashboard: React.FC = () => {
   useEffect(() => {
     fetchNewsData();
   }, []);
-  
   const stocks = useWebSocket();
   // console.log('stocks', stocks);
   // const handleBuyStock = async (symbol: string, price: number) => {
