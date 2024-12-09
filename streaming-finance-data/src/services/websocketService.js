@@ -61,7 +61,7 @@ async function streamFinanceData(io) {
                     
                     // Send subscription request
                     ws.send(subscribeMessage);
-                    logger.info("streamFinanceData: Sent subscription message:", subscribeMessage);
+                    logger.info(`streamFinanceData: Sent subscription message: ${subscribeMessage}`);
                 } catch (subscribeError) {
                     logger.error(`streamFinanceData: Subscription error: ${subscribeError.message}`);
                 }
@@ -90,17 +90,19 @@ async function streamFinanceData(io) {
                     const changePercent = message.changePercent;
                     const openPrice = message.openPrice;
                     const previousClose = message.previousClose;
+                    const shortName = message.shortName;
 
                     logger.debug(`streamFinanceData: Raw decoded buffer: ${decodedBuffer.toString('utf-8')}`);
 
                     // Log the decoded message content
-                    logger.info("Decoded message:", message);
-                    logger.info(typeof minutes);
-                    logger.info(`Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStamp}, UTC: ${timeStampUTC}, minutes: ${minutes}`);
-                    logger.info(`Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}`);
+                    logger.debug("Decoded message:", message);
+                    // Log the decoded message as JSON
+                    logger.debug(`Full decoded message: ${JSON.stringify(message, (key, value) =>
+                        typeof value === 'bigint' ? value.toString() : value // Convert BigInt to string for JSON compatibility
+                    )}`);
+                    logger.info(`streamFinanceData: Symbol: ${symbol}, shortName: ${shortName}, Price: ${price}, Timestamp: ${timeStamp}, Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}, ChangePercent: ${changePercent}, openPrice: ${openPrice}, previousClose: ${previousClose}`);
                     
                     // Insert into Dynamo
-
                     AWS.config.update({ region: 'us-east-1' });
                     const dynamodb = new DynamoDBClient({
                     region: "us-east-1",
@@ -148,23 +150,16 @@ async function streamFinanceData(io) {
                             openPrice: {N:openPrice.toString()},
                             previousClose: {N:previousClose.toString()}
                         };
-                        const metaCommand = new PutItemCommand({
-                          TableName: "websocket_data", 
-                          Item: params,
-                        });
-                        const response = await dynamodb.send(metaCommand);
-                        console.log(response);
-                        logger.info(response);
+                        // const metaCommand = new PutItemCommand({
+                        //   TableName: "websocket_data", 
+                        //   Item: params,
+                        // });
+                        // const response = await dynamodb.send(metaCommand);
+                        // console.log(response);
+                        // logger.info(response);
                     } catch (error) {
                         console.error("Error inserting data into DynamoDB:", error);
                     }
-
-
-                    // Log the decoded message as JSON
-                    logger.info(`Full decoded message: ${JSON.stringify(message, (key, value) =>
-                        typeof value === 'bigint' ? value.toString() : value // Convert BigInt to string for JSON compatibility
-                    )}`);
-                    logger.info(`streamFinanceData: Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStamp}, Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}, ChangePercent: ${changePercent}, openPrice: ${openPrice}, previousClose: ${previousClose}`);
                     
                     // Broadcast to frontend
                     io.emit('stock-update', {
@@ -179,7 +174,7 @@ async function streamFinanceData(io) {
                         previousClose: previousClose
                     });
                     // localhost websocket url
-                    logger.info("streamFinanceData: Broadcasted to frontend", "http://localhost:3000");
+                    logger.debug("streamFinanceData: Broadcasted to frontend", "http://localhost:3000");
                     console.log("streamFinanceData: Broadcasted to frontend", "http://localhost:3000");
                 } catch (processingError) {
                     logger.error(`streamFinanceData: Message processing error: ${processingError.message}`);
