@@ -12,7 +12,7 @@ const SessionModal: React.FC<SessionModalProps> = ({ onClose }) => {
   const [name, setName] = useState("");
   const [startAmount, setStartAmount] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
-  const [duration, setDuration] = useState("");
+  const [endDate, setEndDate] = useState("");
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -28,7 +28,7 @@ const SessionModal: React.FC<SessionModalProps> = ({ onClose }) => {
         name,
         parseFloat(startAmount),
         parseFloat(targetAmount),
-        duration,
+        endDate,
         userId || ''
       );
 
@@ -85,13 +85,14 @@ const SessionModal: React.FC<SessionModalProps> = ({ onClose }) => {
             required
           />
           <input
-            type="text"
-            placeholder="Duration"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
+            type="date"
+            name="endDate"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
             className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
+
           <button
             type="submit"
             disabled={isLoading}
