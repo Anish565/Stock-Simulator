@@ -177,6 +177,7 @@ export const fetchSessions = async (userId: string, inProgress: boolean) => {
       name: session.name,
       startAmount: Number(session.startAmount),
       targetAmount: Number(session.targetAmount),
+      finishingFunds: Number(session.finishingFunds),
       endDate: session.endDate,
       inProgress: session.inProgress
     }));
