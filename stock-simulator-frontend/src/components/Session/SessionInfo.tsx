@@ -58,7 +58,7 @@ interface SessionInfo {
   targetAmount: number;
   userId: string;
   inProgress: boolean;
-  duration: string;
+  endDate: string;
   name: string;
 }
 
@@ -119,7 +119,10 @@ const SessionInfo: React.FC = () => {
         const response = await fetchSessionInfo(sessionId);
         console.log("Response:", response);
         setStockInfo(response.stockInfo);
-        setSessionInfo(response.sessionInfo);
+        setSessionInfo({
+          ...response.sessionInfo,
+          endDate: response.sessionInfo.duration
+        });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred while loading session info');
       } finally {
@@ -191,8 +194,8 @@ const SessionInfo: React.FC = () => {
       </InfoRow>
       
       <InfoRow>
-        <Label>Duration</Label>
-        <Value>{sessionInfo.duration}</Value>
+        <Label>End Date</Label>
+        <Value>{sessionInfo.endDate}</Value>
       </InfoRow>
       
       <Divider sx={{ my: 3 }} />
