@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { buyStock } from '../utils/apiService';
 import { useParams } from "react-router-dom";
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 
 interface StockItemProps {
   symbol: string;
@@ -25,6 +26,7 @@ interface QuantityModalProps {
 
 const QuantityModal: React.FC<QuantityModalProps> = ({ isOpen, onClose, onConfirm, stockName, stockPrice }) => {
   const [quantity, setQuantity] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleQuantityChange = (value: string) => {
     const newQuantity = parseInt(value) || 1;
@@ -33,6 +35,12 @@ const QuantityModal: React.FC<QuantityModalProps> = ({ isOpen, onClose, onConfir
 
   const handleIncrement = () => setQuantity(prev => prev + 1);
   const handleDecrement = () => setQuantity(prev => Math.max(1, prev - 1));
+
+  const handleConfirmClick = async () => {
+    setIsLoading(true);
+    await onConfirm(quantity);
+    setIsLoading(false);
+  };
 
   if (!isOpen) return null;
 
@@ -78,14 +86,23 @@ const QuantityModal: React.FC<QuantityModalProps> = ({ isOpen, onClose, onConfir
           <button
             onClick={onClose}
             className="rounded bg-gray-700 px-4 py-2 text-gray-200 hover:bg-gray-600"
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button
-            onClick={() => onConfirm(quantity)}
-            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-500"
+            onClick={handleConfirmClick}
+            disabled={isLoading}
+            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 disabled:opacity-50 flex items-center gap-2"
           >
-            Confirm Purchase
+            {isLoading ? (
+              <>
+                <AiOutlineLoading3Quarters className="animate-spin" />
+                Processing...
+              </>
+            ) : (
+              'Confirm Purchase'
+            )}
           </button>
         </div>
       </div>
@@ -134,13 +151,14 @@ const StockItem: React.FC<StockItemProps> = ({
           toast.error(`Invalid request: ${response.message}`);
           break;
         case 401:
-          toast.error(`Authentication required. Please log in again.`);
+          console.log("this is the 401 response", response);
+          toast.error(`Insufficient funds to purchase ${symbol}`);
           break;
         case 403:
           toast.error(`You don't have permission to make this purchase.`);
           break;
-        case 404:
-          toast.error(`Stock ${symbol} not found.`);
+        case 422:
+          toast.error(`You are requesting more shares than are available.`);
           break;
         case 500:
           toast.error(`Server error: ${response.message || 'Unknown error'}`);
@@ -188,6 +206,18 @@ const StockItem: React.FC<StockItemProps> = ({
         onConfirm={handleConfirmPurchase}
         stockName={name}
         stockPrice={price}
+      />
+      <ToastContainer 
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
       />
     </>
   );
