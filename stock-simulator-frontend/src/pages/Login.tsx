@@ -5,7 +5,6 @@ import "react-toastify/dist/ReactToastify.css";
 import Header from "../components/Header";
 import { loginUser, fetchQRCode } from "../utils/apiService";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import useWebSocket from "../utils/websocketService";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
