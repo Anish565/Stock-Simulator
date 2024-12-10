@@ -163,12 +163,17 @@ export const fetchSessions = async (userId: string, inProgress: boolean) => {
         }
       }
     );
+    console.log("Get sessions API Response:", response);
     
-    console.log("Fetch sessionAPI Response:", response.data.sessions);
+    // Check if the response indicates no sessions found
+    if (response.data.statusCode === 404) {
+      console.log("No sessions found:", response.data.message);
+      return [];
+    }
     
-    // The response.data already contains the parsed object with sessions array
+    // The response.data contains the parsed object with sessions array
     const { sessions } = response.data;
-
+    
     console.log("Fetched sessions from API:", sessions);
     
     // Transform the DynamoDB format to a simpler object structure
@@ -183,6 +188,11 @@ export const fetchSessions = async (userId: string, inProgress: boolean) => {
     }));
   } catch (error) {
     console.error("Error fetching sessions:", error);
+    // If the error is from axios and contains the 404 response
+    if (axios.isAxiosError(error) && error.response?.data?.statusCode === 404) {
+      console.log("No sessions found:", error.response.data.message);
+      return [];
+    }
     throw error;
   }
 };
