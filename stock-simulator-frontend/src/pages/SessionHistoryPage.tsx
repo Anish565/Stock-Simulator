@@ -6,10 +6,10 @@ import { fetchSessions } from "../utils/apiService";
 
 interface Session {
   name: string;
-  startingFunds: number;
-  targetFunds: number;
+  startAmount: number;
+  targetAmount: number;
   finishingFunds: number;
-  score: number; // Calculated score or any relevant metric
+  endDate: string;
 }
 
 
@@ -51,7 +51,7 @@ const SessionHistoryPage: React.FC = () => {
   const getHistory = async () => {
     const sessions = await fetchSessions(user?.username || "", false);
     setSessions(sessions);
-    console.log(sessions);
+    console.log("History", sessions);
   }
 
   useEffect(() => {
