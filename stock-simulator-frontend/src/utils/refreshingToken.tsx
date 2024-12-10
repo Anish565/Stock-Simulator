@@ -25,7 +25,7 @@ export const setupTokenRefresh = () => {
             }
 
             const data = await response.json();
-            console.log("Tokens refreshed successfully:", data);
+            // console.log("Tokens refreshed successfully:", data);
             sessionStorage.setItem('accessToken', data.access_token);
             sessionStorage.setItem('idToken', data.id_token);
 
@@ -34,7 +34,7 @@ export const setupTokenRefresh = () => {
                 localStorage.setItem('refreshToken', data.refresh_token);
             }
 
-            console.log("Tokens refreshed successfully.");
+            // console.log("Tokens refreshed successfully.");
             return data;
         } catch (error) {
             console.error("Token refresh failed:", error);

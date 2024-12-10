@@ -40,7 +40,7 @@ const Dashboard: React.FC = () => {
   const [newsItems, setNewsItems] = useState<News[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const accessToken = sessionStorage.getItem("accessToken") || "";
-  console.log('accessToken', accessToken);
+  // console.log('accessToken', accessToken);
   const [selectedStock, setSelectedStock] = useState<SelectedStock>({
     symbol: "AAPL",
     name: "Apple Inc.",

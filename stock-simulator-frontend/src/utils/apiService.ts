@@ -177,7 +177,7 @@ export const fetchSessions = async (userId: string, inProgress: boolean) => {
       name: session.name,
       startAmount: Number(session.startAmount),
       targetAmount: Number(session.targetAmount),
-      duration: session.duration,
+      endDate: session.endDate,
       inProgress: session.inProgress
     }));
   } catch (error) {
@@ -346,6 +346,22 @@ export const buyStock = async (sessionId: string, symbol: string, quantity: numb
     return response.data;
   } catch (error) {
     console.error("Error buying stock:", error);
+    throw error;
+  }
+};
+
+export const completeSession = async (sessionId: string) => {
+  try {
+    const userToken = sessionStorage.getItem("accessToken");
+    console.log("Completing session API Call:", { sessionId });
+    const response = await axios.post(`${apiEndpoint}/session/complete`, { sessionId }, {
+      headers: {
+        Authorization: `Bearer ${userToken}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error completing session:", error);
     throw error;
   }
 };
