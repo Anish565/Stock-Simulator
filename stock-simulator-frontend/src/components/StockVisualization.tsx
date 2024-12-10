@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Line, LineChart, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { format } from "date-fns";
 import { fetchStockData } from "../utils/apiService";
+import { BiLoaderAlt } from "react-icons/bi";
 
 const sampleData = {
   meta: {
@@ -49,6 +50,16 @@ interface StockVisualizationProps {
     name: string;
   };
 }
+
+const loaderStyles = `
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .loader {
+    animation: spin 1s linear infinite;
+  }
+`;
 
 export default function StockVisualization({ selectedStock }: StockVisualizationProps) {
   const [selectedRange, setSelectedRange] = useState("1Y");
@@ -139,7 +150,14 @@ export default function StockVisualization({ selectedStock }: StockVisualization
         <h2 className="text-4xl font-semibold">{selectedStock.name}</h2>
         <div className="mt-4 flex items-baseline gap-3">
           <span className="text-4xl font-bold">
-            ${quotes.length > 0 ? quotes[quotes.length - 1].close.toFixed(2) : "Loading..."}
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <BiLoaderAlt className="loader w-8 h-8 text-blue-600" />
+                Loading...
+              </span>
+            ) : (
+              `$${quotes.length > 0 ? quotes[quotes.length - 1].close.toFixed(2) : "—"}`
+            )}
           </span>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -162,8 +180,9 @@ export default function StockVisualization({ selectedStock }: StockVisualization
       {/* Chart */}
       <div className="h-[400px]">
         {loading ? (
-          <div className="flex justify-center items-center h-full">
-            <div className="loader"></div>
+          <div className="flex flex-col justify-center items-center h-full gap-4">
+            <BiLoaderAlt className="loader w-12 h-12 text-blue-600" />
+            <div className="text-gray-600">Loading stock data...</div>
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
@@ -196,6 +215,8 @@ export default function StockVisualization({ selectedStock }: StockVisualization
           </ResponsiveContainer>
         )}
       </div>
+
+      <style>{loaderStyles}</style>
     </div>
   );
 }
