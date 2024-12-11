@@ -1,37 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { fetchSessionOrders } from '../../utils/apiService';
 
 interface Order {
-  id: string;
+  orderId: string;
   symbol: string;
-  type: 'BUY' | 'SELL';
+  purpose: 'Buy' | 'Sell';
   quantity: number;
   price: number;
+  totalPrice: number;
   timestamp: string;
-  status: 'COMPLETED' | 'PENDING' | 'CANCELLED';
+  status: string;
 }
 
 const Orders: React.FC = () => {
-  // This would typically come from your backend/state management
-  const orders: Order[] = [
-    {
-      id: '1',
-      symbol: 'AAPL',
-      type: 'BUY',
-      quantity: 10,
-      price: 175.23,
-      timestamp: '2024-03-20T10:30:00Z',
-      status: 'COMPLETED'
-    },
-    {
-      id: '2',
-      symbol: 'GOOGL',
-      type: 'SELL',
-      quantity: 5,
-      price: 142.50,
-      timestamp: '2024-03-20T11:15:00Z',
-      status: 'COMPLETED'
-    }
-  ];
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { id: sessionId } = useParams<{ id: string }>();
+
+  useEffect(() => {
+    const loadOrders = async () => {
+      try {
+        if (!sessionId) {
+          throw new Error('No session ID provided');
+        }
+        const fetchedOrders = await fetchSessionOrders(sessionId);
+        setOrders(fetchedOrders);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch orders');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOrders();
+  }, [sessionId]);
+
+  if (loading) {
+    return <div className="text-center py-4">Loading orders...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-4 text-red-500">Error: {error}</div>;
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -49,7 +61,7 @@ const Orders: React.FC = () => {
         </thead>
         <tbody className="bg-gray-700/50 divide-y divide-gray-200">
           {orders.map((order) => (
-            <tr key={order.id}>
+            <tr key={order.orderId}>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
                 {new Date(order.timestamp).toLocaleString()}
               </td>
@@ -58,9 +70,9 @@ const Orders: React.FC = () => {
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm">
                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                  order.type === 'BUY' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  order.purpose === 'Buy' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                 }`}>
-                  {order.type}
+                  {order.purpose}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
@@ -70,12 +82,12 @@ const Orders: React.FC = () => {
                 ${order.price.toFixed(2)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
-                ${(order.quantity * order.price).toFixed(2)}
+                ${order.totalPrice.toFixed(2)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm">
                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                  order.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 
-                  order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 
+                  order.status.toLowerCase() === 'completed' ? 'bg-green-100 text-green-800' : 
+                  order.status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
                   'bg-red-100 text-red-800'
                 }`}>
                   {order.status}

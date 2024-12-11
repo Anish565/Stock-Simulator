@@ -5,6 +5,7 @@ const protobuf = require('protobufjs');
 const path = require('path');
 const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb");
 const AWS = require('aws-sdk');
+const { min } = require('moment');
 
 // Load the protobuf schema
 const protoPath = path.resolve(__dirname, '../config/yaticker.proto');
@@ -23,6 +24,15 @@ protobuf.load(protoPath, (err, root) => {
     YatickerMessage = root.lookupType('yaticker'); // Adjust based on the message type in your proto file
 });
 
+function ConvertToUTC(timestamp) {
+    timestamp = Number(timestamp);
+    if (typeof timestamp !== 'number' || isNaN(timestamp)) {
+        return false;
+    }
+    const timestampInMilliseconds = timestamp > 9999999999 ? timestamp : timestamp * 1000;
+    const date = new Date(timestampInMilliseconds);
+    return date.toUTCString();
+}
 
 async function streamFinanceData(io) {
     
@@ -51,7 +61,7 @@ async function streamFinanceData(io) {
                     
                     // Send subscription request
                     ws.send(subscribeMessage);
-                    logger.info("streamFinanceData: Sent subscription message:", subscribeMessage);
+                    logger.info(`streamFinanceData: Sent subscription message: ${subscribeMessage}`);
                 } catch (subscribeError) {
                     logger.error(`streamFinanceData: Subscription error: ${subscribeError.message}`);
                 }
@@ -68,15 +78,16 @@ async function streamFinanceData(io) {
                     const decodedBuffer = Buffer.from(event.data, 'base64');
                     
                     const message = YatickerMessage.decode(decodedBuffer);
-
+                    logger.info(message);
                     const symbol = message.id;
                     const price = message.price;
+                    const shortName = message.shortName;
                     const timeStamp = message.time;
-                    const timeStampUTC = new Date(timeStamp * 1000).toISOString();
-                    const minutes = (new Date(timeStampUTC)).getUTCMinutes();
+                    const timeStampUTC = ConvertToUTC(timeStamp);
+                    const minutes = (new Date(timeStampUTC).getUTCMinutes()).toString();
                     const dayHigh = message.dayHigh;
                     const dayLow = message.dayLow;
-                    const dayVolume = message.dayVolume;
+                    const dayVolume = message.dayVolume.low;
                     const changePercent = message.changePercent;
                     const openPrice = message.openPrice;
                     const previousClose = message.previousClose;
@@ -84,13 +95,14 @@ async function streamFinanceData(io) {
                     logger.debug(`streamFinanceData: Raw decoded buffer: ${decodedBuffer.toString('utf-8')}`);
 
                     // Log the decoded message content
-                    logger.info("Decoded message:", message);
-                    logger.info(`Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStampUTC}`);
-                    logger.info(`Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}`);
-
+                    logger.debug("Decoded message:", message);
+                    // Log the decoded message as JSON
+                    logger.debug(`Full decoded message: ${JSON.stringify(message, (key, value) =>
+                        typeof value === 'bigint' ? value.toString() : value // Convert BigInt to string for JSON compatibility
+                    )}`);
+                    logger.info(`streamFinanceData: Symbol: ${symbol}, shortName: ${shortName}, Price: ${price}, Timestamp: ${timeStamp}, Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}, ChangePercent: ${changePercent}, openPrice: ${openPrice}, previousClose: ${previousClose}`);
                     
                     // Insert into Dynamo
-
                     AWS.config.update({ region: 'us-east-1' });
                     const dynamodb = new DynamoDBClient({
                     region: "us-east-1",
@@ -130,23 +142,21 @@ async function streamFinanceData(io) {
                         // Insert the `meta` fields
                         const params = {
                             symbol: {S:symbol},
-                            sortKey: {S:minutes},
-                            price: {N:price},
-                            dayVolume: {N:dayVolume},
-                            timeStamp: {S:timeStampUTC},
-                            changePercent: {N:changePercent},
-                            openPrice: {N:openPrice},
-                            previousClose: {N:previousClose}
+                            sortKey: {S:minutes.toString()},
+                            price: {N:price.toString()},
+                            dayVolume: {N:dayVolume.toString()},
+                            timeStamp: {S:timeStampUTC.toString()},
+                            changePercent: {N:changePercent.toString()},
+                            openPrice: {N:openPrice.toString()},
+                            previousClose: {N:previousClose.toString()}
                         };
-                        const metaCommand = new PutItemCommand({
-                          TableName: "websocket_data", 
-                          Item: params,
-                        });
-                        console.log(metaCommand);
-                        logger.info(metaCommand);
-                        const reponse = await dynamodb.send(metaCommand);
-                        console.log(reponse);
-                        logger.info(reponse);
+                        // const metaCommand = new PutItemCommand({
+                        //   TableName: "websocket_data", 
+                        //   Item: params,
+                        // });
+                        // const response = await dynamodb.send(metaCommand);
+                        // console.log(response);
+                        // logger.info(response);
                     } catch (error) {
                         console.error("Error inserting data into DynamoDB:", error);
                     }
@@ -156,11 +166,12 @@ async function streamFinanceData(io) {
                     logger.info(`Full decoded message: ${JSON.stringify(message, (key, value) =>
                         typeof value === 'bigint' ? value.toString() : value // Convert BigInt to string for JSON compatibility
                     )}`);
-                    logger.info(`streamFinanceData: Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStamp}, Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}, ChangePercent: ${changePercent}, openPrice: ${openPrice}, previousClose: ${previousClose}`);
+                    logger.info(`streamFinanceData: Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStamp}, Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}, ChangePercent: ${changePercent}, openPrice: ${openPrice}, previousClose: ${previousClose} shortName: ${shortName}`);
                     
                     // Broadcast to frontend
                     io.emit('stock-update', {
                         symbol: symbol,
+                        shortName: shortName,
                         price: price,
                         dayHigh: dayHigh,
                         dayLow: dayLow,
@@ -171,7 +182,7 @@ async function streamFinanceData(io) {
                         previousClose: previousClose
                     });
                     // localhost websocket url
-                    logger.info("streamFinanceData: Broadcasted to frontend", "http://localhost:3000");
+                    logger.debug("streamFinanceData: Broadcasted to frontend", "http://localhost:3000");
                     console.log("streamFinanceData: Broadcasted to frontend", "http://localhost:3000");
                 } catch (processingError) {
                     logger.error(`streamFinanceData: Message processing error: ${processingError.message}`);

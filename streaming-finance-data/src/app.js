@@ -7,6 +7,7 @@ const { getTrendingStocks } = require('./controllers/trendingController');
 const { getNews, getNews2pretty } = require('./controllers/newsController');
 const { healthCheck } = require('./controllers/healthCheckController');
 const { initializeLogger, logger } = require('./utils/logger');
+const { daemonFetchNewsForTickers } = require('./services/ploygonService');
 
 const cors = require('cors');
 
@@ -36,8 +37,8 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Routes
 app.get('/api/fetched-data', fetchHistoricalDataFromYahoo);  // Fetch historical data API
-app.get('/api/news', getNews); // GetNews
-app.get('/api/polygon/news', getNews2pretty);
+// app.get('/api/news', getNews); // GetNews
+// app.get('/api/polygon/news', getNews2pretty);
 app.get('/api/trending-stocks', getTrendingStocks); // Trending stocks API
 app.get('/health', healthCheck); //healthCheck
 
@@ -82,6 +83,7 @@ async function startApp() {
         //     await fetchHistoricalDataFromYahoo(period);
         // }
         // await fetchHistoricalDataFromYahoo("5D");
+        daemonFetchNewsForTickers(10);
         streamFinanceData(io); // Start real-time data streaming (runs continuously)
         
     } catch (error) {
