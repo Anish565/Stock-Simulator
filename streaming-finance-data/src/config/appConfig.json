@@ -2,7 +2,22 @@
     "tickers": [
         "AAPL",
         "MSFT",
-        "GOOGL"
+        "GOOGL",
+        "NVDA",
+        "AMZN",
+        "JPM",
+        "WFC",
+        "V",
+        "ORCL",
+        "MU",
+        "BAC",
+        "T",
+        "NKE",
+        "BA",
+        "SHOP",
+        "RACE",
+        "TMUS",
+        "BLK"
     ],
     "historicalData": {
         "startDate": "2023-01-01",
