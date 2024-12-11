@@ -54,10 +54,10 @@ const SessionHistoryPage: React.FC = () => {
     // console.log("History", sessions);
   }
 
-  // useEffect(() => {
-  //   getHistory();
-  // }, []);
-  getHistory();
+  useEffect(() => {
+    getHistory();
+  }, []);
+
   return (
     <Layout>
       <div className="p-6 space-y-6 max-w-2xl mx-auto">
@@ -65,7 +65,7 @@ const SessionHistoryPage: React.FC = () => {
         
         <div className="space-y-4">
           {sessions && sessions.length > 0 ? sessions.map((session: Session, index: number) => (
-            <SessionHistory session={session} index={index} />
+            <SessionHistory key={index} session={session} index={index} />
           )) : <div>No sessions found</div>}
         </div>
       </div>

@@ -155,7 +155,7 @@ export const fetchSessions = async (userId: string, inProgress: boolean) => {
       throw new Error("User ID is required");
     }
     const userToken = sessionStorage.getItem("accessToken");
-    console.log("Fetching sessions API Call:", { userId, inProgress });
+    // console.log("Fetching sessions API Call:", { userId, inProgress });
     const response = await axios.get(`${apiEndpoint}/session?userId=${userId}&inProgress=${inProgress}`,
       {
         headers: {
