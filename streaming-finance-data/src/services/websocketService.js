@@ -6,6 +6,7 @@ const path = require('path');
 const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb");
 const AWS = require('aws-sdk');
 const { min } = require('moment');
+const dbConfig = require('../config/dbConfig');
 
 // Load the protobuf schema
 const protoPath = path.resolve(__dirname, '../config/yaticker.proto');
@@ -70,6 +71,7 @@ async function streamFinanceData(io) {
             // Handle incoming messages
             ws.onmessage = async (event) => {
                 if (!YatickerMessage) {
+                    log.error("streamFinanceData: Protobuf schema not loaded yet.");
                     console.error("streamFinanceData: Protobuf schema not loaded yet.");
                     return;
                 }
@@ -78,7 +80,7 @@ async function streamFinanceData(io) {
                     const decodedBuffer = Buffer.from(event.data, 'base64');
                     
                     const message = YatickerMessage.decode(decodedBuffer);
-                    logger.info(message);
+
                     const symbol = message.id;
                     const price = message.price;
                     const shortName = message.shortName;
@@ -100,16 +102,17 @@ async function streamFinanceData(io) {
                     logger.debug(`Full decoded message: ${JSON.stringify(message, (key, value) =>
                         typeof value === 'bigint' ? value.toString() : value // Convert BigInt to string for JSON compatibility
                     )}`);
-                    logger.info(`streamFinanceData: Symbol: ${symbol}, shortName: ${shortName}, Price: ${price}, Timestamp: ${timeStamp}, Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}, ChangePercent: ${changePercent}, openPrice: ${openPrice}, previousClose: ${previousClose}`);
+                    logger.debug(`streamFinanceData: Symbol: ${symbol}, shortName: ${shortName}, Price: ${price}, Timestamp: ${timeStamp}, Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}, ChangePercent: ${changePercent}, openPrice: ${openPrice}, previousClose: ${previousClose}`);
                     
+
                     // Insert into Dynamo
                     AWS.config.update({ region: 'us-east-1' });
-                    const dynamodb = new DynamoDBClient({
-                    region: "us-east-1",
-                    credentials: {
-                        accessKeyId: "AKIAZI2LHLFXQE4MB2QP",
-                        secretAccessKey: "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",
-                    },
+                        const dynamodb = new DynamoDBClient({
+                        region: dbConfig.region,
+                        credentials: {
+                            accessKeyId: dbConfig.credentials.accessKeyId,
+                            secretAccessKey: dbConfig.credentials.secretAccessKey,
+                        },
                     });
 
                     const formatItem = (item) => {
@@ -137,7 +140,21 @@ async function streamFinanceData(io) {
                         }
                         return { NULL: true };
                       };
+                      
+                      io.emit('stock-update', {
+                        symbol: symbol,
+                        shortName: shortName,
+                        price: price,
+                        dayHigh: dayHigh,
+                        dayLow: dayLow,
+                        dayVolume: dayVolume,
+                        timestamp: timeStamp,
+                        changePercent: changePercent,
+                        openPrice: openPrice,
+                        previousClose: previousClose
+                    });
 
+                    // This should run in async and should push data every one min
                       try {
                         // Insert the `meta` fields
                         const params = {
@@ -150,40 +167,31 @@ async function streamFinanceData(io) {
                             openPrice: {N:openPrice.toString()},
                             previousClose: {N:previousClose.toString()}
                         };
-                        // const metaCommand = new PutItemCommand({
-                        //   TableName: "websocket_data", 
-                        //   Item: params,
-                        // });
-                        // const response = await dynamodb.send(metaCommand);
-                        // console.log(response);
-                        // logger.info(response);
+                        // 
+                        const metaCommand = new PutItemCommand({
+                          TableName: "websocket_data", 
+                          Item: params,
+                        });
+                        const response = await dynamodb.send(metaCommand);
+                        //console.log(response);
+                        //logger.info(response);
                     } catch (error) {
+                        log.error("Error inserting data into DynamoDB:", error);
                         console.error("Error inserting data into DynamoDB:", error);
                     }
 
 
                     // Log the decoded message as JSON
-                    logger.info(`Full decoded message: ${JSON.stringify(message, (key, value) =>
-                        typeof value === 'bigint' ? value.toString() : value // Convert BigInt to string for JSON compatibility
-                    )}`);
-                    logger.info(`streamFinanceData: Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStamp}, Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}, ChangePercent: ${changePercent}, openPrice: ${openPrice}, previousClose: ${previousClose} shortName: ${shortName}`);
+                    // logger.info(`Full decoded message: ${JSON.stringify(message, (key, value) =>
+                    //     typeof value === 'bigint' ? value.toString() : value // Convert BigInt to string for JSON compatibility
+                    // )}`);
+                    // logger.info(`streamFinanceData: Symbol: ${symbol}, Price: ${price}, Timestamp: ${timeStamp}, Day High: ${dayHigh}, Day Low: ${dayLow}, Volume: ${dayVolume}, ChangePercent: ${changePercent}, openPrice: ${openPrice}, previousClose: ${previousClose} shortName: ${shortName}`);
                     
                     // Broadcast to frontend
-                    io.emit('stock-update', {
-                        symbol: symbol,
-                        shortName: shortName,
-                        price: price,
-                        dayHigh: dayHigh,
-                        dayLow: dayLow,
-                        dayVolume: dayVolume,
-                        timestamp: timeStamp,
-                        changePercent: changePercent,
-                        openPrice: openPrice,
-                        previousClose: previousClose
-                    });
+                    
                     // localhost websocket url
                     logger.debug("streamFinanceData: Broadcasted to frontend", "http://localhost:3000");
-                    console.log("streamFinanceData: Broadcasted to frontend", "http://localhost:3000");
+                    //console.log("streamFinanceData: Broadcasted to frontend", "http://localhost:3000");
                 } catch (processingError) {
                     logger.error(`streamFinanceData: Message processing error: ${processingError.message}`);
                 }
