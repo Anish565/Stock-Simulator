@@ -4,10 +4,10 @@ import { faArrowUp, faArrowDown, faSquare } from "@fortawesome/free-solid-svg-ic
 
 interface session {
         name: string;
-        startingFunds: number;
-        targetFunds: number;
+        startAmount: number;
+        targetAmount: number;
         finishingFunds: number;
-        score: number;
+        endDate: string;
     }
 
 interface SessionHistoryProps {
@@ -16,9 +16,9 @@ interface SessionHistoryProps {
 }
 
 const SessionHistory: React.FC<SessionHistoryProps> = ({ session, index }) => {
-
-    const profit = session.finishingFunds - session.startingFunds;
-    const profitPercentage = (profit / session.startingFunds) * 100;
+    // console.log("Session history", session);
+    const profit = session.finishingFunds - session.startAmount;
+    const profitPercentage = (profit / session.startAmount) * 100;
 
     let profitIcon = faSquare;
     let profitColor = "text-blue-500";
@@ -39,11 +39,11 @@ const SessionHistory: React.FC<SessionHistoryProps> = ({ session, index }) => {
               <div className="mt-2 space-y-1">
                 <div className="flex justify-between text-gray-700">
                   <span>Starting Funds:</span>
-                  <span>${session.startingFunds.toFixed(2)}</span>
+                  <span>${session.startAmount}</span>
                 </div>
                 <div className="flex justify-between text-gray-700">
                   <span>Target Funds:</span>
-                  <span>${session.targetFunds.toFixed(2)}</span>
+                  <span>${session.targetAmount}</span>
                 </div>
                 <div className="flex justify-between text-gray-700">
                   <span>Finishing Funds:</span>
@@ -56,9 +56,9 @@ const SessionHistory: React.FC<SessionHistoryProps> = ({ session, index }) => {
                         {profitPercentage.toFixed(2)}%
                     </span>
                 </div>
-                <div className="mt-4">
+                {/* <div className="mt-4">
                     <h2 className="text-3xl font-bold">{session.score}%</h2>
-                </div>
+                </div> */}
               </div>
             </div>
     )

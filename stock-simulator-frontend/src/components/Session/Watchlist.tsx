@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaSearch, FaTrash } from 'react-icons/fa';
+import { fetchSessionWatchlist, fetchStockMetaData } from '../../utils/apiService';
+import { useParams } from 'react-router-dom';
+import useWebSocket from '../../utils/websocketService';
 
 interface Stock {
   symbol: string;
   name: string;
   price: number;
-  change: number;
   changePercent: number;
 }
 
@@ -15,18 +17,48 @@ interface BuyModalState {
 }
 
 const Watchlist: React.FC = () => {
+  const { id: sessionId } = useParams<{ id: string }>();
   const [searchTerm, setSearchTerm] = useState('');
-  const [watchlist, setWatchlist] = useState<Stock[]>([
-    // Mock data - replace with actual API data
-    {
-      symbol: 'AAPL',
-      name: 'Apple Inc.',
-      price: 173.50,
-      change: 2.30,
-      changePercent: 1.34
-    },
-    // ... more stocks
-  ]);
+  const [watchlist, setWatchlist] = useState<Stock[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const stocks = useWebSocket();
+  console.log('stocks', stocks);
+  // Fetch watchlist data on component mount
+  const [symbols, setSymbols] = useState<string[]>([]);
+
+  useEffect(() => {
+    const loadWatchlist = async () => {
+      setLoading(true);
+      console.log("Fetching watchlist API Call:", sessionId);
+      if (!sessionId) return;
+      const watchlistSymbols = await fetchSessionWatchlist(sessionId);
+      setLoading(false);
+      setSymbols(watchlistSymbols);
+      setLoading(false);
+    };
+    loadWatchlist();
+  }, [sessionId]);
+     
+
+  useEffect(() => {
+    const loadStockDetails = async () => {
+      const stockDetails = await Promise.all(
+        symbols.map(async (symbol: string) => {
+          const data = await fetchStockMetaData(symbol);
+          return {
+            symbol,
+            name: data.data.name || symbol,
+            price: stocks[symbol]?.price || 0,
+            changePercent: stocks[symbol]?.changePercent || 0
+          };
+        })
+      );
+      setWatchlist(stockDetails);
+    };
+    
+    loadStockDetails();
+  }, [symbols, stocks]);
 
   const [buyModal, setBuyModal] = useState<BuyModalState>({
     isOpen: false,
@@ -39,11 +71,11 @@ const Watchlist: React.FC = () => {
     console.log('Searching for:', searchTerm);
   };
 
-  const handleAddStock = (stock: Stock) => {
-    if (!watchlist.find(s => s.symbol === stock.symbol)) {
-      setWatchlist([...watchlist, stock]);
-    }
-  };
+  // const handleAddStock = (stock: Stock) => {
+  //   if (!watchlist.find(s => s.symbol === stock.symbol)) {
+  //     setWatchlist([...watchlist, stock]);
+  //   }
+  // };
 
   const handleRemoveStock = (symbol: string) => {
     setWatchlist(watchlist.filter(stock => stock.symbol !== symbol));
@@ -93,51 +125,72 @@ const Watchlist: React.FC = () => {
         </button>
       </form>
 
-      {/* Modern Watchlist Table */}
-      <div className="bg-gradient-to-br from-gray-800 to-gray-600 rounded-2xl shadow-sm overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-100">
-          <thead className="bg-gray-700/50">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Symbol</th>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-right text-xs font-bold text-gray-100 uppercase tracking-wider">Price</th>
-              <th className="px-6 py-3 text-right text-xs font-bold text-gray-100 uppercase tracking-wider">Change</th>
-              <th className="px-6 py-3 text-right text-xs font-bold text-gray-100 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {watchlist.map((stock) => (
-              <tr
-                key={stock.symbol}
-                onClick={() => handleStockClick(stock)}
-                className="hover:bg-gray-700/50 cursor-pointer transition-colors duration-150"
-              >
-                <td className="px-6 py-4 text-gray-100 whitespace-nowrap">{stock.symbol}</td>
-                <td className="px-6 py-4 text-gray-100 whitespace-nowrap">{stock.name}</td>
-                <td className="px-6 py-4 text-gray-100 whitespace-nowrap text-right">
-                  ${stock.price.toFixed(2)}
-                </td>
-                <td className={`px-6 py-4 whitespace-nowrap text-right ${
-                  stock.change >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {stock.change >= 0 ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveStock(stock.symbol);
-                    }}
-                    className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50 transition-all duration-200"
-                  >
-                    <FaTrash className="w-4 h-4" />
-                  </button>
-                </td>
+      {/* Loading state */}
+      {loading && (
+        <div className="text-center py-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+        </div>
+      )}
+
+      {/* Error state */}
+      {error && (
+        <div className="text-red-500 text-center py-4">
+          {error}
+        </div>
+      )}
+
+      {/* Watchlist table - only show if not loading and no error */}
+      {!loading && !error && (
+        <div className="bg-gradient-to-br from-gray-800 to-gray-600 rounded-2xl shadow-sm overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-100">
+            <thead className="bg-gray-700/50">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Symbol</th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Name</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-gray-100 uppercase tracking-wider">Price</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-gray-100 uppercase tracking-wider">Change</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-gray-100 uppercase tracking-wider">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {watchlist.map((stock) => (
+                <tr
+                  key={stock.symbol}
+                  onClick={() => handleStockClick(stock)}
+                  className="hover:bg-gray-700/50 cursor-pointer transition-colors duration-150"
+                >
+                  <td className="px-6 py-4 text-gray-100 whitespace-nowrap">{stock.symbol}</td>
+                  <td className="px-6 py-4 text-gray-100 whitespace-nowrap">{stock.name}</td>
+                  <td className="px-6 py-4 text-gray-100 whitespace-nowrap text-right">
+                    ${stock.price.toFixed(2)}
+                  </td>
+                  <td className={`px-6 py-4 whitespace-nowrap text-right ${
+                    stock.changePercent >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveStock(stock.symbol);
+                      }}
+                      className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50 transition-all duration-200"
+                    >
+                      <FaTrash className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {watchlist.length === 0 && (
+            <div className="text-gray-400 text-center py-8">
+              No stocks in watchlist. Use the search bar to add stocks.
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Modern Modal */}
       {buyModal.isOpen && buyModal.stock && (

@@ -6,18 +6,33 @@ import SessionPage from "./pages/SessionPage";
 import ProfilePage from "./pages/ProfilePage";
 import SessionHistoryPage from "./pages/SessionHistoryPage";
 import MFA from "./pages/MFA";
+import ProtectedRoute from "./utils/ProtectedRoute";
+import { useEffect } from "react";
+import { setupTokenRefresh } from "./utils/refreshingToken";
+import { scheduleEndOfDayCheck } from "./utils/checkDate";
+import useWebSocket from "./utils/websocketService";
+
 
 function App() {
+  useEffect(() => {
+    setupTokenRefresh();
+  }, []);
+  
+  const sessions = useWebSocket(); 
+  useEffect(() => {
+    scheduleEndOfDayCheck(sessions);
+  }, [sessions]);
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/register" replace />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/session" element={<SessionPage />} /> {/* This will have an ID */}
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/session-history" element={<SessionHistoryPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />  
+        <Route path="/session/:id?" element={<ProtectedRoute><SessionPage /></ProtectedRoute>} /> {/* This will have an ID */}
+        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/session-history" element={<ProtectedRoute><SessionHistoryPage /></ProtectedRoute>} />
         <Route path="/mfa" element={<MFA />} />
       </Routes>
     </Router>
