@@ -9,18 +9,18 @@ import MFA from "./pages/MFA";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import { useEffect } from "react";
 import { setupTokenRefresh } from "./utils/refreshingToken";
-import { checkDate } from "./utils/checkDate";
+import { scheduleEndOfDayCheck } from "./utils/checkDate";
 import useWebSocket from "./utils/websocketService";
 
 
 function App() {
-  const sessions = useWebSocket(); 
   useEffect(() => {
     setupTokenRefresh();
   }, []);
-
+  
+  const sessions = useWebSocket(); 
   useEffect(() => {
-    checkDate(sessions);
+    scheduleEndOfDayCheck(sessions);
   }, [sessions]);
 
   return (

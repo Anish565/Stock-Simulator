@@ -42,7 +42,7 @@ export const checkDate = async (stockData: unknown) => {
 };
 
 // Function to schedule the check at midnight
-export const scheduleEndOfDayCheck = async () => {
+export const scheduleEndOfDayCheck = async (stockData: unknown) => {
     const now = new Date();
     const night = new Date(
         now.getFullYear(),
@@ -54,10 +54,10 @@ export const scheduleEndOfDayCheck = async () => {
     );
     
     const msUntilMidnight = night.getTime() - now.getTime();
-    await checkDate();
+    // await checkDate(stockData);
     // Schedule first run
     setTimeout(async () => {
-        await checkDate();
+        await checkDate(stockData);
         // After first run, schedule it to run every 24 hours
         setInterval(checkDate, 24 * 60 * 60 * 1000);
     }, msUntilMidnight);

@@ -24,7 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({ profileImageUrl }) => {
     <div
       className={`${
         isSidebarOpen ? "w-64" : "w-16"
-      } transition-all duration-300 ease-in-out bg-gray-900 min-h-screen flex flex-col relative shadow-lg overflow-hidden`}
+      } transition-all duration-500 ease-in-out bg-gray-900 min-h-screen flex flex-col sticky top-0 left-0 shadow-lg overflow-hidden`}
     >
       {/* Toggle Button */}
       <button 

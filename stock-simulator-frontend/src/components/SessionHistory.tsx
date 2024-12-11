@@ -16,7 +16,7 @@ interface SessionHistoryProps {
 }
 
 const SessionHistory: React.FC<SessionHistoryProps> = ({ session, index }) => {
-    console.log("Session history", session);
+    // console.log("Session history", session);
     const profit = session.finishingFunds - session.startAmount;
     const profitPercentage = (profit / session.startAmount) * 100;
 
