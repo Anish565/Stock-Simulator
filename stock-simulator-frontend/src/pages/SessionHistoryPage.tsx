@@ -51,13 +51,13 @@ const SessionHistoryPage: React.FC = () => {
   const getHistory = async () => {
     const sessions = await fetchSessions(user?.username || "", false);
     setSessions(sessions);
-    console.log("History", sessions);
+    // console.log("History", sessions);
   }
 
-  useEffect(() => {
-    getHistory();
-  }, []);
-
+  // useEffect(() => {
+  //   getHistory();
+  // }, []);
+  getHistory();
   return (
     <Layout>
       <div className="p-6 space-y-6 max-w-2xl mx-auto">

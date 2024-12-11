@@ -366,7 +366,12 @@ export const completeSession = async (sessionId: string, stockData: unknown) => 
     console.log("Completing session API Call:", { sessionId, stockData });
     const userToken = sessionStorage.getItem("accessToken");
     console.log("Completing session API Call:", { sessionId });
-    const response = await axios.post(`${apiEndpoint}/session/complete`, { sessionId }, {
+    const response = await axios.post(`${apiEndpoint}/session/complete`, 
+      { 
+        sessionId: sessionId,
+        stockData: stockData
+      }, 
+      {
       headers: {
         Authorization: `Bearer ${userToken}`
       }
