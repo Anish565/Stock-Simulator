@@ -75,9 +75,11 @@ async function fetchHistoricalDataFromYahoo(period) {
             });
             
             // Insert historical data
-            // console.log(historicalData);
+            console.log("--------fh1-----------");
+            console.log(historicalData);
+            console.log("--------fh2-----------");
             logger.info("fetchHistoricalDataFromYahoo: Inserting into Historical Data");
-            // await loadToDynamo(historicalData, period);
+            await loadToDynamo(historicalData, period);
 
             // for (const day of historicalData.quotes) {
             //     try {
