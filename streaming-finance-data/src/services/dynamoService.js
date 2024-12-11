@@ -1,15 +1,16 @@
 const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb");
 const AWS = require('aws-sdk');
 const { response } = require("../app");
+const dbConfig = require('../config/dbConfig');
 
 async function loadToDynamo(data, interval) {
 
     AWS.config.update({ region: 'us-east-1' });
     const dynamodb = new DynamoDBClient({
-    region: "us-east-1",
+    region: dbConfig.region,
     credentials: {
-        accessKeyId: "AKIAZI2LHLFXQE4MB2QP",
-        secretAccessKey: "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",
+        accessKeyId: dbConfig.credentials.accessKeyId,
+        secretAccessKey: dbConfig.credentials.secretAccessKey,
     },
     });
 
@@ -89,6 +90,7 @@ async function loadToDynamo(data, interval) {
       await dynamodb.send(quoteCommand);
       // console.log(`Quote for date ${quote.date} inserted successfully.`);
   } catch (error) {
+    log.error("Error inserting data into DynamoDB:", error);
     console.error("Error inserting data into DynamoDB:", error);
   }
 }

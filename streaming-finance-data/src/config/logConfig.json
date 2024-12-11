@@ -1,5 +1,5 @@
 {
-    "level": "debug",
+    "level": "info",
     "file": "logs/app.log",
     "format": "json"
 }

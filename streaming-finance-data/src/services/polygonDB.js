@@ -1,14 +1,19 @@
 const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb");
 const AWS = require('aws-sdk');
+const dbConfig = require('../config/dbConfig');
 
 async function polygonDynamoService(data_tickers) {
 
+    console.log("-----ab1-----");
+    console.log(dbConfig);
+    console.log("-----ab2-----");
+    
     AWS.config.update({ region: 'us-east-1' });
     const dynamodb = new DynamoDBClient({
-    region: "us-east-1",
+    region: dbConfig.region,
     credentials: {
-        accessKeyId: "AKIAZI2LHLFXQE4MB2QP",
-        secretAccessKey: "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",
+        accessKeyId: dbConfig.credentials.accessKeyId,
+        secretAccessKey: dbConfig.credentials.secretAccessKey,
     },
     });
 
@@ -76,6 +81,7 @@ async function polygonDynamoService(data_tickers) {
                 console.log(reponse);
                 rank++;
             } catch (error) {
+                log.error("Error inserting data into DynamoDB:", error);
                 console.error("Error inserting data into DynamoDB:", error);
             }
     }
