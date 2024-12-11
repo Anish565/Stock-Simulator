@@ -361,8 +361,9 @@ export const buyStock = async (sessionId: string, symbol: string, quantity: numb
   }
 };
 
-export const completeSession = async (sessionId: string) => {
+export const completeSession = async (sessionId: string, stockData: unknown) => {
   try {
+    console.log("Completing session API Call:", { sessionId, stockData });
     const userToken = sessionStorage.getItem("accessToken");
     console.log("Completing session API Call:", { sessionId });
     const response = await axios.post(`${apiEndpoint}/session/complete`, { sessionId }, {

@@ -2,8 +2,9 @@ import { decodeUserToken } from "./jwtDecode";
 import { completeSession, fetchSessions } from "./apiService";
 
 
-export const checkDate = async () => {
+export const checkDate = async (stockData: unknown) => {
     console.log("checkDate");
+    console.log("stockData from checkDate", stockData);
     
     // Get user info
     const userInfo = decodeUserToken();
@@ -30,7 +31,7 @@ export const checkDate = async () => {
             today.setHours(0, 0, 0, 0);
             
             if (endDate < today) {
-                await completeSession(session.id);
+                await completeSession(session.id, stockData);
                 console.log("Session completed:", session.id);
             }
         }

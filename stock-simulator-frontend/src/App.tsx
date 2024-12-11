@@ -7,10 +7,22 @@ import ProfilePage from "./pages/ProfilePage";
 import SessionHistoryPage from "./pages/SessionHistoryPage";
 import MFA from "./pages/MFA";
 import ProtectedRoute from "./utils/ProtectedRoute";
+import { useEffect } from "react";
+import { setupTokenRefresh } from "./utils/refreshingToken";
+import { checkDate } from "./utils/checkDate";
+import useWebSocket from "./utils/websocketService";
 
 
 function App() {
-  
+  const sessions = useWebSocket(); 
+  useEffect(() => {
+    setupTokenRefresh();
+  }, []);
+
+  useEffect(() => {
+    checkDate(sessions);
+  }, [sessions]);
+
   return (
     <Router>
       <Routes>
