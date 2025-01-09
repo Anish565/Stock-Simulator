@@ -1,5 +1,12 @@
 ## Stock Simulator
 
+## Project Report and Video Demo
+
+- [Video Demo](https://youtu.be/YWBZWLkrCVI)
+- [Project Report](https://drive.google.com/file/d/1CJNmW_5yLYljd7D5o20oUhAlEHikr2rv/view?usp=sharing)
+
+## About
+
 ### Problem Statement
 
 Learning about stock trading can be intimidating and risky for beginners. Real-world trading involves financial risks, making it inaccessible for individuals who want to gain hands-on experience and understand trading strategies in a risk-free environment. Additionally, managing portfolios, tracking performance, and staying updated with market trends are complex tasks without proper tools.
@@ -7,11 +14,6 @@ Learning about stock trading can be intimidating and risky for beginners. Real-w
 ### Solution
 
 The Stock Simulator provides a comprehensive platform for individuals to practice stock trading in a simulated, risk-free environment. By enabling users to create trading sessions, buy and sell stocks with virtual funds, and analyze portfolio performance, the application empowers users to learn and experiment with trading strategies. It integrates real-time stock data and financial news to help users make informed decisions. The platform’s goal is to make trading education accessible, engaging, and effective.
-
-### Project Report and Video Demo
-
-- Project Report
-- Video Demo
 
 ### Key Features
 
@@ -26,7 +28,7 @@ The Stock Simulator provides a comprehensive platform for individuals to practic
 
 
 
-### Tech Stack
+## Tech Stack
 
 #### Frontend:
 
@@ -46,9 +48,9 @@ The Stock Simulator provides a comprehensive platform for individuals to practic
 #### Cloud Platform:
 - AWS
 
-### Architecture Overview
+## Architecture Overview
 
-#### System Design Diagram: 
+- [System Design Diagram]()
 
 #### The architecture includes:
 
