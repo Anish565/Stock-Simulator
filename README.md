@@ -3,7 +3,7 @@
 ## Project Report and Video Demo
 
 - [Video Demo](https://youtu.be/YWBZWLkrCVI)
-- [Project Report](https://drive.google.com/file/d/1CJNmW_5yLYljd7D5o20oUhAlEHikr2rv/view?usp=sharing)
+- [Project Report](https://github.com/Anish565/Stock-Simulator/blob/main/Cloud_Project_Report.pdf)
 
 ## About
 
