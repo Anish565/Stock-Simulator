@@ -50,8 +50,6 @@ The Stock Simulator provides a comprehensive platform for individuals to practic
 
 ## Architecture Overview
 
-- [System Design Diagram]()
-
 #### The architecture includes:
 
 - User Authentication: Managed through AWS Cognito, allowing secure login and registration.
